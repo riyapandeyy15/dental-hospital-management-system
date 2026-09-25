@@ -4,6 +4,7 @@ import Home from '../pages/patient/Home.jsx';
 import Login from '../pages/auth/Login.jsx';
 import Unauthorized from '../pages/Unauthorized.jsx';
 import AdminDashboard from '../pages/admin/AdminDashboard.jsx';
+import DoctorManagement from '../pages/admin/DoctorManagement.jsx';
 import DoctorDashboard from '../pages/doctor/DoctorDashboard.jsx';
 import PublicLayout from '../layouts/PublicLayout.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
@@ -28,6 +29,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
             <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/doctors"
+        element={
+          <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+            <DoctorManagement />
           </ProtectedRoute>
         }
       />

@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.js",
     "verify:models": "node scripts/verifyModels.js",
     "seed:admin": "node scripts/seedAdmin.js",
-    "verify:auth": "node scripts/verifyAuth.js"
+    "verify:auth": "node scripts/verifyAuth.js",
+    "verify:doctors": "node scripts/verifyDoctors.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

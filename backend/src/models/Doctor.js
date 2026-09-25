@@ -12,7 +12,7 @@ const doctorSchema = new mongoose.Schema(
     },
     specialization: { type: String, required: true, trim: true },
     qualifications: [{ type: String, trim: true }],
-    registrationNumber: { type: String, trim: true },
+    registrationNumber: { type: String, trim: true, unique: true, sparse: true },
     experienceYears: { type: Number, min: 0 },
     phone: { type: String, trim: true },
     availability: [

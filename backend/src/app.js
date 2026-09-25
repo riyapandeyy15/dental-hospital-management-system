@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 const env = require('./config/env');
 const authRoutes = require('./modules/auth/auth.routes');
+const doctorRoutes = require('./modules/doctors/doctor.routes');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/doctors', doctorRoutes);
 
 // Health check endpoint - confirms the API process is running and reports
 // whether the MongoDB connection is currently up.
