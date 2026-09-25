@@ -9,9 +9,9 @@ const DOCTOR_NAV_ITEMS = [
   { label: 'Settings', icon: 'bi-gear', disabled: true },
 ];
 
-function DoctorLayout({ children }) {
+function DoctorLayout({ children, title = 'Doctor Dashboard', subtitle }) {
   return (
-    <DashboardLayout title="Doctor Dashboard" navItems={DOCTOR_NAV_ITEMS} offcanvasId="doctorSidebar">
+    <DashboardLayout title={title} subtitle={subtitle} navItems={DOCTOR_NAV_ITEMS} offcanvasId="doctorSidebar">
       {children}
     </DashboardLayout>
   );

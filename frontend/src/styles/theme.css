@@ -1,0 +1,337 @@
+/*
+  Dental HMS design system.
+  A professional dental/medical palette (teal + navy) built on top of
+  Bootstrap 5's own CSS variables, so Bootstrap's built-in utilities
+  (btn-primary, bg-primary, text-primary, spinners, focus rings...)
+  automatically follow the same theme instead of the default Bootstrap blue.
+*/
+
+:root {
+  /* Brand palette */
+  --dhms-primary: #0d6e6e;
+  --dhms-primary-rgb: 13, 110, 110;
+  --dhms-primary-dark: #0a5657;
+  --dhms-primary-light: #e6f3f3;
+  --dhms-navy: #16233a;
+  --dhms-navy-light: #1e2f4d;
+
+  /* Text & surfaces */
+  --dhms-text: #1f2937;
+  --dhms-text-muted: #6b7280;
+  --dhms-bg: #f5f7fa;
+  --dhms-surface: #ffffff;
+  --dhms-border: #e6e9ef;
+
+  /* Status colors */
+  --dhms-success: #147d64;
+  --dhms-success-bg: #e6f5f0;
+  --dhms-danger: #c23934;
+  --dhms-danger-bg: #fbeceb;
+  --dhms-warning: #a3690f;
+  --dhms-warning-bg: #fdf2e1;
+
+  /* Radii & shadows */
+  --dhms-radius-sm: 8px;
+  --dhms-radius: 12px;
+  --dhms-radius-lg: 20px;
+  --dhms-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --dhms-shadow: 0 2px 10px rgba(16, 24, 40, 0.07);
+  --dhms-shadow-lg: 0 16px 40px rgba(16, 24, 40, 0.14);
+
+  /* Retint Bootstrap so its own components inherit the brand palette */
+  --bs-primary: var(--dhms-primary);
+  --bs-primary-rgb: var(--dhms-primary-rgb);
+  --bs-link-color: var(--dhms-primary);
+  --bs-link-color-rgb: var(--dhms-primary-rgb);
+  --bs-link-hover-color: var(--dhms-primary-dark);
+  --bs-link-hover-color-rgb: var(--dhms-primary-rgb);
+  --bs-body-color: var(--dhms-text);
+  --bs-body-bg: var(--dhms-bg);
+  --bs-border-color: var(--dhms-border);
+  --bs-border-radius: var(--dhms-radius-sm);
+  --bs-border-radius-lg: var(--dhms-radius);
+  --bs-font-sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  font-family: var(--bs-font-sans-serif);
+  color: var(--dhms-text);
+  background-color: var(--dhms-bg);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-weight: 500;
+}
+.btn-primary {
+  background-color: var(--dhms-primary);
+  border-color: var(--dhms-primary);
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--dhms-primary-dark) !important;
+  border-color: var(--dhms-primary-dark) !important;
+}
+.btn-outline-primary {
+  color: var(--dhms-primary);
+  border-color: var(--dhms-primary);
+}
+.btn-outline-primary:hover {
+  background-color: var(--dhms-primary);
+  border-color: var(--dhms-primary);
+}
+
+/* ---------- Cards & surfaces ---------- */
+.dhms-card {
+  background: var(--dhms-surface);
+  border: 1px solid var(--dhms-border);
+  border-radius: var(--dhms-radius);
+  box-shadow: var(--dhms-shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.dhms-card--hover:hover {
+  box-shadow: var(--dhms-shadow);
+  transform: translateY(-2px);
+}
+.dhms-section-card {
+  padding: 1.5rem;
+}
+
+/* ---------- Stat cards ---------- */
+.dhms-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+.dhms-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--dhms-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.dhms-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--dhms-navy);
+}
+.dhms-stat-label {
+  color: var(--dhms-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Sidebar ---------- */
+.dhms-sidebar {
+  background: var(--dhms-navy);
+}
+.dhms-sidebar-brand {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.dhms-sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1rem 1.25rem;
+}
+.dhms-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--dhms-radius-sm);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.dhms-sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+.dhms-sidebar-link.active {
+  background: var(--dhms-primary);
+  color: #fff;
+}
+.dhms-sidebar-link.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* ---------- Topbar ---------- */
+.dhms-topbar {
+  background: var(--dhms-surface);
+  border-bottom: 1px solid var(--dhms-border);
+}
+
+/* ---------- Avatar ---------- */
+.dhms-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--dhms-primary-light);
+  color: var(--dhms-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.dhms-avatar--lg {
+  width: 64px;
+  height: 64px;
+  font-size: 1.35rem;
+}
+
+/* ---------- Badges ---------- */
+.dhms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.dhms-badge-success {
+  background: var(--dhms-success-bg);
+  color: var(--dhms-success);
+}
+.dhms-badge-danger {
+  background: var(--dhms-danger-bg);
+  color: var(--dhms-danger);
+}
+.dhms-badge-warning {
+  background: var(--dhms-warning-bg);
+  color: var(--dhms-warning);
+}
+.dhms-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ---------- Tables ---------- */
+.dhms-table thead th {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--dhms-text-muted);
+  background: #fafbfc;
+  border-bottom: 1px solid var(--dhms-border);
+  white-space: nowrap;
+}
+.dhms-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+.dhms-table tbody tr:hover {
+  background-color: var(--dhms-primary-light);
+}
+.dhms-table td,
+.dhms-table th {
+  vertical-align: middle;
+  padding: 0.85rem 1rem;
+}
+
+/* ---------- Forms ---------- */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--dhms-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--dhms-primary-rgb), 0.15);
+}
+.form-label {
+  font-size: 0.875rem;
+}
+
+/* ---------- Modals ---------- */
+.dhms-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 1040;
+}
+.dhms-modal-anim {
+  animation: dhms-modal-in 0.18s ease;
+}
+@keyframes dhms-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- Page transition ---------- */
+.dhms-page-transition {
+  animation: dhms-fade-in 0.2s ease;
+}
+@keyframes dhms-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Focus visibility (accessibility) ---------- */
+.dhms-sidebar-link:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--dhms-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Login page ---------- */
+.dhms-hero-gradient {
+  background: linear-gradient(160deg, var(--dhms-navy) 0%, #0b3a3a 55%, var(--dhms-primary-dark) 100%);
+}
+
+.dhms-brand-wordmark {
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.01em;
+}
+
+.dhms-btn-gradient {
+  background: linear-gradient(135deg, #0f766e 0%, #065f46 100%);
+  border: none;
+  border-radius: 999px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.dhms-btn-gradient:hover:not(:disabled),
+.dhms-btn-gradient:focus:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: 0 10px 24px rgba(6, 95, 70, 0.35);
+  transform: translateY(-1px);
+  color: #fff;
+}
+.dhms-btn-gradient:disabled {
+  filter: grayscale(0.25) brightness(0.92);
+}
+
+/* Faint decorative line-art icons scattered behind the login form - purely
+   cosmetic (aria-hidden, no pointer events), never a functional element. */
+.dhms-bg-iconography {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.dhms-bg-iconography i {
+  position: absolute;
+  color: var(--dhms-primary);
+  opacity: 0.07;
+}

@@ -2,32 +2,28 @@ import { NavLink } from 'react-router-dom';
 
 // items: [{ label, icon, to, disabled }]. `disabled` renders a "Soon" badge
 // for modules that aren't built yet, instead of a real link.
-function Sidebar({ items, className = '', onNavigate }) {
+// `dismissOffcanvas`: true when this instance renders inside the mobile
+// offcanvas drawer, so tapping a link also closes the drawer.
+function Sidebar({ items, className = '', dismissOffcanvas = false }) {
   return (
-    <nav className={`bg-dark text-white p-3 ${className}`} style={{ width: '240px' }}>
-      <div className="fs-5 fw-semibold mb-4 px-2">Dental HMS</div>
-      <ul className="nav nav-pills flex-column gap-1">
+    <nav className={className}>
+      <ul className="nav flex-column gap-1 p-3 mb-0">
         {items.map((item) => (
           <li className="nav-item" key={item.label}>
             {item.disabled ? (
-              <span
-                className="nav-link text-white-50 d-flex align-items-center gap-2"
-                style={{ cursor: 'not-allowed' }}
-              >
+              <span className="dhms-sidebar-link disabled">
                 {item.icon && <i className={`bi ${item.icon}`} />}
-                <span>{item.label}</span>
-                <span className="badge bg-secondary ms-auto">Soon</span>
+                <span className="flex-grow-1">{item.label}</span>
+                <span className="badge bg-white bg-opacity-10 text-white-50 fw-normal">Soon</span>
               </span>
             ) : (
               <NavLink
                 to={item.to}
-                onClick={onNavigate}
-                className={({ isActive }) =>
-                  `nav-link text-white d-flex align-items-center gap-2 ${isActive ? 'active bg-primary' : ''}`
-                }
+                {...(dismissOffcanvas ? { 'data-bs-dismiss': 'offcanvas' } : {})}
+                className={({ isActive }) => `dhms-sidebar-link ${isActive ? 'active' : ''}`}
               >
                 {item.icon && <i className={`bi ${item.icon}`} />}
-                <span>{item.label}</span>
+                <span className="flex-grow-1">{item.label}</span>
               </NavLink>
             )}
           </li>

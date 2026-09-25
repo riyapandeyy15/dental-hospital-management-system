@@ -66,80 +66,155 @@ function Login() {
   }
 
   return (
-    <div className="d-flex align-items-center justify-content-center bg-light" style={{ minHeight: '100vh' }}>
-      <div className="card shadow-sm border-0" style={{ width: '100%', maxWidth: '420px' }}>
-        <div className="card-body p-4 p-md-5">
-          <div className="text-center mb-4">
-            <div className="fs-2 text-primary mb-1">
-              <i className="bi bi-heart-pulse-fill" />
+    <div className="d-flex" style={{ minHeight: '100vh' }}>
+      {/* Brand panel - hidden on small screens, shown from lg upward */}
+      <div
+        className="dhms-hero-gradient d-none d-lg-flex flex-column justify-content-between text-white p-5"
+        style={{ width: '44%' }}
+      >
+        <div className="d-flex align-items-center gap-2">
+          <div
+            className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+            style={{ width: 40, height: 40, background: 'var(--dhms-primary)' }}
+          >
+            <i className="bi bi-heart-pulse-fill fs-5" />
+          </div>
+          <span className="dhms-brand-wordmark fs-4">DentiFlow</span>
+        </div>
+
+        <div>
+          <i className="bi bi-clipboard2-pulse display-1 opacity-25 mb-4 d-block" aria-hidden="true" />
+          <h1 className="h2 fw-bold mb-3" style={{ lineHeight: 1.25 }}>
+            Complete Dental Care.
+            <br />
+            Organized. In one place.
+          </h1>
+          <p className="text-white-50 mb-0" style={{ maxWidth: 420 }}>
+            Manage doctors, appointments and patient records securely - built for hospital
+            administrators and dental professionals.
+          </p>
+        </div>
+
+        <p className="text-white-50 small mb-0">&copy; {new Date().getFullYear()} DentiFlow</p>
+      </div>
+
+      {/* Form panel */}
+      <div
+        className="position-relative d-flex align-items-center justify-content-center flex-grow-1 p-4"
+        style={{ background: 'var(--dhms-bg)' }}
+      >
+        {/* Purely decorative background icons - aria-hidden, no interaction */}
+        <div className="dhms-bg-iconography" aria-hidden="true">
+          <i className="bi bi-heart-pulse" style={{ fontSize: '9rem', top: '8%', left: '8%', transform: 'rotate(-12deg)' }} />
+          <i className="bi bi-shield-plus" style={{ fontSize: '6rem', top: '65%', left: '4%', transform: 'rotate(8deg)' }} />
+          <i className="bi bi-clipboard2-pulse" style={{ fontSize: '7rem', top: '12%', right: '6%', transform: 'rotate(10deg)' }} />
+          <i className="bi bi-activity" style={{ fontSize: '5rem', bottom: '10%', right: '10%', transform: 'rotate(-6deg)' }} />
+          <i className="bi bi-bandaid" style={{ fontSize: '4.5rem', bottom: '30%', left: '18%', transform: 'rotate(20deg)' }} />
+        </div>
+
+        <div className="position-relative w-100" style={{ maxWidth: '420px', zIndex: 1 }}>
+          <div className="text-center mb-4 d-lg-none">
+            <div
+              className="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
+              style={{ width: 48, height: 48, background: 'var(--dhms-primary-light)', color: 'var(--dhms-primary-dark)' }}
+            >
+              <i className="bi bi-heart-pulse-fill fs-4" />
             </div>
-            <h1 className="h4 fw-bold mb-1">Dental HMS</h1>
-            <p className="text-muted small mb-0">Dental Hospital Management System</p>
+            <h1 className="dhms-brand-wordmark h4 fw-bold mb-0">DentiFlow</h1>
           </div>
 
-          {apiError && (
-            <div className="alert alert-danger py-2" role="alert">
-              {apiError}
-            </div>
-          )}
+          <div className="dhms-card p-4 p-md-5" style={{ borderRadius: 'var(--dhms-radius-lg)', boxShadow: 'var(--dhms-shadow-lg)' }}>
+            <h2 className="h4 fw-bold mb-1">Welcome back</h2>
+            <p className="text-muted small mb-4">Sign in to access your dashboard.</p>
 
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                className={`form-control ${fieldErrors.email ? 'is-invalid' : ''}`}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="username"
-                placeholder="you@example.com"
-                disabled={isSubmitting}
-              />
-              {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
-            </div>
+            {apiError && (
+              <div className="alert alert-danger py-2 d-flex align-items-center gap-2" role="alert">
+                <i className="bi bi-exclamation-triangle-fill flex-shrink-0" />
+                <span>{apiError}</span>
+              </div>
+            )}
 
-            <div className="mb-4">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <div className="input-group">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  className={`form-control ${fieldErrors.password ? 'is-invalid' : ''}`}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  disabled={isSubmitting}
-                />
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label fw-medium">
+                  Email
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-white">
+                    <i className="bi bi-envelope text-muted" />
+                  </span>
+                  <input
+                    id="email"
+                    type="email"
+                    className={`form-control ${fieldErrors.email ? 'is-invalid' : ''}`}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="username"
+                    placeholder="you@example.com"
+                    disabled={isSubmitting}
+                  />
+                  {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="password" className="form-label fw-medium">
+                  Password
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-white">
+                    <i className="bi bi-lock text-muted" />
+                  </span>
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    className={`form-control ${fieldErrors.password ? 'is-invalid' : ''}`}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    disabled={isSubmitting}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                  </button>
+                  {fieldErrors.password && <div className="invalid-feedback">{fieldErrors.password}</div>}
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-end mb-3">
                 <button
                   type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="btn btn-link p-0 small text-decoration-none"
+                  onClick={(e) => e.preventDefault()}
+                  title="Password reset isn't available yet"
                 >
-                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                  Forgot password?
                 </button>
-                {fieldErrors.password && <div className="invalid-feedback">{fieldErrors.password}</div>}
               </div>
-            </div>
 
-            <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                  Signing in...
-                </>
-              ) : (
-                'Login'
-              )}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="dhms-btn-gradient btn text-white w-100 py-2 fw-medium"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
+            </form>
+          </div>
 
           <p className="text-muted small text-center mt-4 mb-0">Admin and Doctor access only.</p>
         </div>

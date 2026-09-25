@@ -12,9 +12,9 @@ const ADMIN_NAV_ITEMS = [
   { label: 'Settings', icon: 'bi-gear', disabled: true },
 ];
 
-function AdminLayout({ children, title = 'Admin Dashboard' }) {
+function AdminLayout({ children, title = 'Admin Dashboard', subtitle }) {
   return (
-    <DashboardLayout title={title} navItems={ADMIN_NAV_ITEMS} offcanvasId="adminSidebar">
+    <DashboardLayout title={title} subtitle={subtitle} navItems={ADMIN_NAV_ITEMS} offcanvasId="adminSidebar">
       {children}
     </DashboardLayout>
   );

@@ -11,9 +11,10 @@ const emptyForm = {
   experienceYears: '',
 };
 
-// Shared Add/Edit form. In edit mode the password field is hidden entirely -
-// password changes are a separate, deliberate action, never a side effect
-// of editing a profile.
+// Shared Add/Edit form. Only fields the Doctor/User models actually support
+// are shown - no invented fields. In edit mode the password field is
+// omitted entirely; changing a password is a separate, deliberate action,
+// never a side effect of editing a profile.
 function DoctorFormModal({ show, mode, doctor, onClose, onSubmit, apiError }) {
   const [form, setForm] = useState(emptyForm);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -93,26 +94,40 @@ function DoctorFormModal({ show, mode, doctor, onClose, onSubmit, apiError }) {
 
   return (
     <>
-      <div className="modal-backdrop fade show" />
+      <div className="dhms-modal-backdrop" onClick={isSubmitting ? undefined : onClose} />
       <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
         <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
-          <div className="modal-content">
+          <div className="modal-content dhms-modal-anim border-0" style={{ borderRadius: 'var(--dhms-radius)' }}>
             <form onSubmit={handleSubmit} noValidate>
-              <div className="modal-header">
-                <h5 className="modal-title">{mode === 'add' ? 'Add Doctor' : 'Edit Doctor'}</h5>
-                <button type="button" className="btn-close" onClick={onClose} disabled={isSubmitting} />
+              <div className="modal-header border-0 pb-0">
+                <div>
+                  <h5 className="modal-title fw-semibold">{mode === 'add' ? 'Add Doctor' : 'Edit Doctor'}</h5>
+                  <p className="text-muted small mb-0">
+                    {mode === 'add'
+                      ? 'Create a doctor profile and their login account.'
+                      : "Update this doctor's profile information."}
+                  </p>
+                </div>
+                <button type="button" className="btn-close" onClick={onClose} disabled={isSubmitting} aria-label="Close" />
               </div>
 
-              <div className="modal-body">
+              <div className="modal-body pt-3">
                 {apiError && (
-                  <div className="alert alert-danger py-2" role="alert">
-                    {apiError}
+                  <div className="alert alert-danger py-2 d-flex align-items-center gap-2" role="alert">
+                    <i className="bi bi-exclamation-triangle-fill flex-shrink-0" />
+                    <span>{apiError}</span>
                   </div>
                 )}
 
-                <div className="row g-3">
+                <h6 className="text-uppercase text-muted small fw-semibold mb-3" style={{ letterSpacing: '0.04em' }}>
+                  Doctor Information
+                </h6>
+
+                <div className="row g-3 mb-4">
                   <div className="col-md-6">
-                    <label className="form-label">Full Name</label>
+                    <label className="form-label">
+                      Full Name <span className="text-danger">*</span>
+                    </label>
                     <input
                       className={`form-control ${fieldErrors.name ? 'is-invalid' : ''}`}
                       value={form.name}
@@ -123,7 +138,9 @@ function DoctorFormModal({ show, mode, doctor, onClose, onSubmit, apiError }) {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">
+                      Email <span className="text-danger">*</span>
+                    </label>
                     <input
                       type="email"
                       className={`form-control ${fieldErrors.email ? 'is-invalid' : ''}`}
@@ -133,24 +150,6 @@ function DoctorFormModal({ show, mode, doctor, onClose, onSubmit, apiError }) {
                     />
                     {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
                   </div>
-
-                  {mode === 'add' && (
-                    <div className="col-md-6">
-                      <label className="form-label">Temporary Password</label>
-                      <input
-                        type="text"
-                        className={`form-control ${fieldErrors.password ? 'is-invalid' : ''}`}
-                        value={form.password}
-                        onChange={(e) => setForm({ ...form, password: e.target.value })}
-                        placeholder="At least 8 characters"
-                        disabled={isSubmitting}
-                      />
-                      {fieldErrors.password && <div className="invalid-feedback">{fieldErrors.password}</div>}
-                      <div className="form-text">
-                        Share this with the doctor directly - they should change it after first login.
-                      </div>
-                    </div>
-                  )}
 
                   <div className="col-md-6">
                     <label className="form-label">Phone</label>
@@ -163,7 +162,9 @@ function DoctorFormModal({ show, mode, doctor, onClose, onSubmit, apiError }) {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Specialization</label>
+                    <label className="form-label">
+                      Specialization <span className="text-danger">*</span>
+                    </label>
                     <input
                       className={`form-control ${fieldErrors.specialization ? 'is-invalid' : ''}`}
                       value={form.specialization}
@@ -201,7 +202,7 @@ function DoctorFormModal({ show, mode, doctor, onClose, onSubmit, apiError }) {
                   </div>
 
                   <div className="col-12">
-                    <label className="form-label">Qualifications (comma-separated)</label>
+                    <label className="form-label">Qualifications</label>
                     <input
                       className="form-control"
                       value={form.qualifications}
@@ -209,11 +210,39 @@ function DoctorFormModal({ show, mode, doctor, onClose, onSubmit, apiError }) {
                       placeholder="BDS, MDS"
                       disabled={isSubmitting}
                     />
+                    <div className="form-text">Separate multiple qualifications with commas.</div>
                   </div>
                 </div>
+
+                {mode === 'add' && (
+                  <>
+                    <h6 className="text-uppercase text-muted small fw-semibold mb-3" style={{ letterSpacing: '0.04em' }}>
+                      Account Setup
+                    </h6>
+                    <div className="row g-3">
+                      <div className="col-md-6">
+                        <label className="form-label">
+                          Temporary Password <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className={`form-control ${fieldErrors.password ? 'is-invalid' : ''}`}
+                          value={form.password}
+                          onChange={(e) => setForm({ ...form, password: e.target.value })}
+                          placeholder="At least 8 characters"
+                          disabled={isSubmitting}
+                        />
+                        {fieldErrors.password && <div className="invalid-feedback">{fieldErrors.password}</div>}
+                        <div className="form-text">
+                          Share this with the doctor directly - they should change it after first login.
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
-              <div className="modal-footer">
+              <div className="modal-footer border-0 pt-0">
                 <button type="button" className="btn btn-outline-secondary" onClick={onClose} disabled={isSubmitting}>
                   Cancel
                 </button>
