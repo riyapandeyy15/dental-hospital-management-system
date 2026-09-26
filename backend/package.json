@@ -10,7 +10,9 @@
     "verify:models": "node scripts/verifyModels.js",
     "seed:admin": "node scripts/seedAdmin.js",
     "verify:auth": "node scripts/verifyAuth.js",
-    "verify:doctors": "node scripts/verifyDoctors.js"
+    "verify:doctors": "node scripts/verifyDoctors.js",
+    "seed:demo-patients": "node scripts/seedDemoPatients.js",
+    "verify:doctor-portal": "node scripts/verifyDoctorPortal.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

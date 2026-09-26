@@ -240,11 +240,40 @@ async function setDoctorStatus(id, isActive) {
   return toSafeDoctor(doctor.toObject(), user.toObject());
 }
 
+// Returns a doctor's own safe profile, looked up by their User id (the id
+// on the authenticated session) rather than the Doctor document's own id.
+async function getDoctorByUserId(userId) {
+  const doctor = await Doctor.findOne({ userId }).populate('userId');
+  if (!doctor || !doctor.userId) {
+    throw new ApiError(404, 'No doctor profile is linked to this account.');
+  }
+  const doctorObj = doctor.toObject();
+  return toSafeDoctor(doctorObj, doctorObj.userId);
+}
+
+// A doctor may only update their own phone number. Specialization,
+// qualifications and registration number remain admin-governed - the same
+// separation of duties Phase 5's admin Doctor Management already enforces.
+async function updateOwnPhone(userId, phone) {
+  const doctor = await Doctor.findOne({ userId });
+  if (!doctor) {
+    throw new ApiError(404, 'No doctor profile is linked to this account.');
+  }
+
+  doctor.phone = String(phone || '').trim();
+  await doctor.save();
+
+  const user = await User.findById(userId);
+  return toSafeDoctor(doctor.toObject(), user.toObject());
+}
+
 module.exports = {
   listDoctors,
   getDoctorById,
+  getDoctorByUserId,
   createDoctor,
   updateDoctor,
+  updateOwnPhone,
   setDoctorStatus,
   toSafeDoctor,
 };
