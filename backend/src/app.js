@@ -63,6 +63,10 @@ app.use('/api/v1/patient/appointments', patientAppointmentRoutes);
 app.use('/api/v1/patients', adminPatientRoutes);
 app.use('/api/v1/appointments', adminAppointmentRoutes);
 
+// Admin dashboard/reports (Phase 8) - aggregate statistics only, no
+// per-record management lives here.
+app.use('/api/v1/admin/dashboard', adminDashboardRoutes);
+
 // Health check endpoint - confirms the API process is running and reports
 // whether the MongoDB connection is currently up.
 app.get('/api/v1/health', (req, res) => {

@@ -14,7 +14,8 @@
     "seed:demo-patients": "node scripts/seedDemoPatients.js",
     "verify:doctor-portal": "node scripts/verifyDoctorPortal.js",
     "seed:doctor-availability": "node scripts/seedDoctorAvailability.js",
-    "verify:patient-portal": "node scripts/verifyPatientPortal.js"
+    "verify:patient-portal": "node scripts/verifyPatientPortal.js",
+    "verify:admin-dashboard": "node scripts/verifyAdminDashboard.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
