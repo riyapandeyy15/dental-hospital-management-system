@@ -17,6 +17,11 @@ export async function updateMyProfile(payload) {
   return response.data.doctor;
 }
 
+export async function updateMyAvailability(availability) {
+  const response = await axiosClient.put('/doctor/profile/availability', { availability });
+  return response.data.doctor;
+}
+
 // --- Patients ---
 export async function listPatients({ search = '', page = 1, limit = 10 } = {}) {
   const params = { page, limit };

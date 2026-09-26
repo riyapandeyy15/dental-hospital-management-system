@@ -12,6 +12,7 @@ import Avatar from '../../components/shared/Avatar.jsx';
 import StatusBadge from '../../components/shared/StatusBadge.jsx';
 import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import { useToast } from '../../context/ToastContext.jsx';
 
 const PAGE_SIZE = 10;
 const STATUS_OPTIONS = [
@@ -21,6 +22,7 @@ const STATUS_OPTIONS = [
 ];
 
 function DoctorManagement() {
+  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [doctors, setDoctors] = useState([]);
@@ -38,7 +40,6 @@ function DoctorManagement() {
   const [detailsDoctor, setDetailsDoctor] = useState(null);
   const [statusTarget, setStatusTarget] = useState(null);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
-  const [actionMessage, setActionMessage] = useState('');
 
   const loadDoctors = useCallback(async () => {
     setIsLoading(true);
@@ -98,10 +99,10 @@ function DoctorManagement() {
     try {
       if (formModal.mode === 'add') {
         await doctorService.createDoctor(payload);
-        setActionMessage('Doctor added successfully.');
+        toast.success('Doctor added successfully.');
       } else {
         await doctorService.updateDoctor(formModal.doctor.id, payload);
-        setActionMessage('Doctor updated successfully.');
+        toast.success('Doctor updated successfully.');
       }
       closeFormModal();
       await loadDoctors();
@@ -120,11 +121,11 @@ function DoctorManagement() {
     setIsTogglingStatus(true);
     try {
       await doctorService.setDoctorStatus(statusTarget.id, !statusTarget.isActive);
-      setActionMessage(`Dr. ${statusTarget.name} was ${!statusTarget.isActive ? 'activated' : 'deactivated'} successfully.`);
+      toast.success(`Dr. ${statusTarget.name} was ${!statusTarget.isActive ? 'activated' : 'deactivated'} successfully.`);
       setStatusTarget(null);
       await loadDoctors();
     } catch (err) {
-      setLoadError(err.response?.data?.message || 'Failed to update doctor status.');
+      toast.error(err.response?.data?.message || 'Failed to update doctor status.');
     } finally {
       setIsTogglingStatus(false);
     }
@@ -142,14 +143,6 @@ function DoctorManagement() {
           </button>
         }
       />
-
-      {actionMessage && (
-        <div className="alert alert-success alert-dismissible d-flex align-items-center gap-2" role="alert">
-          <i className="bi bi-check-circle-fill" />
-          <div className="flex-grow-1">{actionMessage}</div>
-          <button type="button" className="btn-close" onClick={() => setActionMessage('')} aria-label="Dismiss" />
-        </div>
-      )}
 
       <div className="dhms-card mb-4 p-3 p-md-4">
         <div className="row g-3 align-items-center">

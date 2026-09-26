@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const ROLES = ['ADMIN', 'DOCTOR'];
+const ROLES = ['ADMIN', 'DOCTOR', 'PATIENT'];
 
-// Authentication identity for the two staff roles. This is the only place
-// passwordHash and role live - Doctor stores a reference here rather than
-// duplicating them.
+// Authentication identity for all three roles. This is the only place
+// passwordHash and role live - Doctor/Patient store a reference here rather
+// than duplicating them.
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },

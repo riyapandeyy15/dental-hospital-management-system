@@ -26,8 +26,14 @@ const appointmentSchema = new mongoose.Schema(
 );
 
 // Speeds up the common "find this doctor's appointments on this date" query
-// and slot-availability checks.
-appointmentSchema.index({ doctorId: 1, appointmentDate: 1, startTime: 1 });
+// and slot-availability checks, AND (via the partial unique constraint)
+// makes double-booking the same doctor/date/time impossible at the database
+// level - not just in application logic. Scoped to PENDING/CONFIRMED only,
+// so cancelling an appointment frees that slot for someone else to book.
+appointmentSchema.index(
+  { doctorId: 1, appointmentDate: 1, startTime: 1 },
+  { unique: true, partialFilterExpression: { status: { $in: ['PENDING', 'CONFIRMED'] } } }
+);
 appointmentSchema.index({ patientId: 1 });
 
 module.exports = mongoose.model('Appointment', appointmentSchema);

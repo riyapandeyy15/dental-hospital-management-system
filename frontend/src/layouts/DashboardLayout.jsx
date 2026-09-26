@@ -2,8 +2,10 @@ import { useAuth } from '../context/AuthContext.jsx';
 import Sidebar from '../components/shared/Sidebar.jsx';
 import Avatar from '../components/shared/Avatar.jsx';
 
+const ROLE_LABELS = { ADMIN: 'Administrator', DOCTOR: 'Doctor', PATIENT: 'Patient' };
+
 function roleLabel(role) {
-  return role === 'ADMIN' ? 'Administrator' : 'Doctor';
+  return ROLE_LABELS[role] || role;
 }
 
 // Shared shell for the Admin and Doctor dashboards: a fixed dark sidebar on

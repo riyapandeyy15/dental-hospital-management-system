@@ -52,6 +52,14 @@ export function AuthProvider({ children }) {
     return loggedInUser;
   }, []);
 
+  const register = useCallback(async ({ name, email, phone, password }) => {
+    setError(null);
+    const { token, user: newUser } = await authService.register({ name, email, phone, password });
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
+    setUser(newUser);
+    return newUser;
+  }, []);
+
   const logout = useCallback(() => {
     clearAuth();
     navigate('/login', { replace: true });
@@ -65,9 +73,10 @@ export function AuthProvider({ children }) {
       error,
       setError,
       login,
+      register,
       logout,
     }),
-    [user, isLoading, error, login, logout]
+    [user, isLoading, error, login, register, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

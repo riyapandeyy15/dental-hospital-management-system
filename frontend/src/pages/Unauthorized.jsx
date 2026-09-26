@@ -1,13 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext.jsx';
-import { ROLES } from '../utils/constants.js';
-
-function dashboardPathForRole(role) {
-  if (role === ROLES.ADMIN) return '/admin/dashboard';
-  if (role === ROLES.DOCTOR) return '/doctor/dashboard';
-  return '/login';
-}
+import { dashboardPathForRole } from '../utils/constants.js';
 
 function Unauthorized() {
   const { user } = useAuth();

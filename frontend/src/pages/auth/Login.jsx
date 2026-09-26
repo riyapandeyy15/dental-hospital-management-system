@@ -1,14 +1,8 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../context/AuthContext.jsx';
-import { ROLES } from '../../utils/constants.js';
-
-function dashboardPathForRole(role) {
-  if (role === ROLES.ADMIN) return '/admin/dashboard';
-  if (role === ROLES.DOCTOR) return '/doctor/dashboard';
-  return '/';
-}
+import { dashboardPathForRole } from '../../utils/constants.js';
 
 function Login() {
   const { login } = useAuth();
@@ -216,7 +210,12 @@ function Login() {
             </form>
           </div>
 
-          <p className="text-muted small text-center mt-4 mb-0">Admin and Doctor access only.</p>
+          <p className="text-muted small text-center mt-4 mb-0">
+            New patient?{' '}
+            <Link to="/register" className="fw-medium">
+              Create an account
+            </Link>
+          </p>
         </div>
       </div>
     </div>

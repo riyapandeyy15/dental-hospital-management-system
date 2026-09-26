@@ -13,5 +13,6 @@ router.use(requireAuth, requireRole('DOCTOR'));
 
 router.get('/', doctorSelfController.getMyProfile);
 router.put('/', doctorSelfController.updateMyProfileValidators, doctorSelfController.updateMyProfile);
+router.put('/availability', doctorSelfController.updateMyAvailability);
 
 module.exports = router;

@@ -27,6 +27,22 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+// Public-facing subset for patients browsing doctors - deliberately leaves
+// out email and phone (contact happens through the booking flow, not
+// directly) while still surfacing legitimate public professional
+// credentials.
+function toPublicDoctor(doctorPlain, userPlain) {
+  return {
+    id: doctorPlain._id.toString(),
+    name: userPlain.name,
+    specialization: doctorPlain.specialization,
+    qualifications: doctorPlain.qualifications || [],
+    registrationNumber: doctorPlain.registrationNumber || null,
+    experienceYears: doctorPlain.experienceYears ?? null,
+    availability: doctorPlain.availability || [],
+  };
+}
+
 async function listDoctors({ search, status, page = 1, limit = 10 }) {
   const pageNum = Math.max(parseInt(page, 10) || 1, 1);
   const limitNum = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
@@ -267,6 +283,103 @@ async function updateOwnPhone(userId, phone) {
   return toSafeDoctor(doctor.toObject(), user.toObject());
 }
 
+function validateAvailability(availability) {
+  if (!Array.isArray(availability)) {
+    throw new ApiError(400, 'availability must be an array.');
+  }
+  for (const entry of availability) {
+    if (
+      typeof entry.dayOfWeek !== 'number' ||
+      entry.dayOfWeek < 0 ||
+      entry.dayOfWeek > 6 ||
+      !/^\d{2}:\d{2}$/.test(entry.startTime || '') ||
+      !/^\d{2}:\d{2}$/.test(entry.endTime || '') ||
+      entry.startTime >= entry.endTime
+    ) {
+      throw new ApiError(
+        400,
+        'Each availability entry needs a dayOfWeek (0-6), a startTime and an endTime, with startTime before endTime.'
+      );
+    }
+  }
+  return availability.map((entry) => ({
+    dayOfWeek: entry.dayOfWeek,
+    startTime: entry.startTime,
+    endTime: entry.endTime,
+    slotDurationMinutes: entry.slotDurationMinutes || undefined,
+  }));
+}
+
+// A doctor manages their own weekly working hours - this is what patients'
+// availability lookups and booking validation read from.
+async function updateOwnAvailability(userId, availability) {
+  const doctor = await Doctor.findOne({ userId });
+  if (!doctor) {
+    throw new ApiError(404, 'No doctor profile is linked to this account.');
+  }
+
+  doctor.availability = validateAvailability(availability);
+  await doctor.save();
+
+  const user = await User.findById(userId);
+  return toSafeDoctor(doctor.toObject(), user.toObject());
+}
+
+async function listPublicDoctors({ search, specialization, page = 1, limit = 12 }) {
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const limitNum = Math.min(Math.max(parseInt(limit, 10) || 12, 1), 50);
+
+  const pipeline = [
+    { $match: { isActive: true } },
+    { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },
+    { $unwind: '$user' },
+  ];
+
+  if (search && search.trim()) {
+    const regex = new RegExp(escapeRegex(search.trim()), 'i');
+    pipeline.push({ $match: { $or: [{ 'user.name': regex }, { specialization: regex }] } });
+  }
+  if (specialization && specialization.trim()) {
+    pipeline.push({ $match: { specialization: new RegExp(`^${escapeRegex(specialization.trim())}$`, 'i') } });
+  }
+
+  pipeline.push(
+    { $sort: { specialization: 1, 'user.name': 1 } },
+    {
+      $facet: {
+        data: [{ $skip: (pageNum - 1) * limitNum }, { $limit: limitNum }],
+        totalCount: [{ $count: 'count' }],
+      },
+    }
+  );
+
+  const [result] = await Doctor.aggregate(pipeline);
+  const doctors = (result?.data || []).map((doc) => toPublicDoctor(doc, doc.user));
+  const total = result?.totalCount?.[0]?.count || 0;
+
+  return {
+    doctors,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages: Math.max(Math.ceil(total / limitNum), 1),
+    },
+  };
+}
+
+async function getPublicDoctorById(id) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, 'Invalid doctor ID.');
+  }
+  const doctor = await Doctor.findOne({ _id: id, isActive: true }).populate('userId');
+  if (!doctor || !doctor.userId) {
+    throw new ApiError(404, 'Doctor not found.');
+  }
+  const doctorObj = doctor.toObject();
+  return toPublicDoctor(doctorObj, doctorObj.userId);
+}
+
 module.exports = {
   listDoctors,
   getDoctorById,
@@ -274,6 +387,10 @@ module.exports = {
   createDoctor,
   updateDoctor,
   updateOwnPhone,
+  updateOwnAvailability,
   setDoctorStatus,
+  listPublicDoctors,
+  getPublicDoctorById,
   toSafeDoctor,
+  toPublicDoctor,
 };

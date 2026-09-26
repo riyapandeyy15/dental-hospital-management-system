@@ -8,6 +8,7 @@ import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
 import AppointmentStatusBadge from '../../components/shared/AppointmentStatusBadge.jsx';
 import ConfirmDialog from '../../components/shared/ConfirmDialog.jsx';
+import { useToast } from '../../context/ToastContext.jsx';
 import * as doctorPortalService from '../../api/doctorPortalService.js';
 
 const PAGE_SIZE = 10;
@@ -39,6 +40,8 @@ function formatDate(dateStr) {
 }
 
 function DoctorAppointments() {
+  const toast = useToast();
+
   const [appointments, setAppointments] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +54,6 @@ function DoctorAppointments() {
 
   const [statusChange, setStatusChange] = useState(null); // { appointment, action }
   const [isSubmittingStatus, setIsSubmittingStatus] = useState(false);
-  const [actionMessage, setActionMessage] = useState('');
 
   const loadAppointments = useCallback(async () => {
     setIsLoading(true);
@@ -85,11 +87,11 @@ function DoctorAppointments() {
     setIsSubmittingStatus(true);
     try {
       await doctorPortalService.updateAppointmentStatus(statusChange.appointment.id, statusChange.action.status);
-      setActionMessage(`Appointment marked as ${statusChange.action.status.toLowerCase()}.`);
+      toast.success(`Appointment marked as ${statusChange.action.status.toLowerCase()}.`);
       setStatusChange(null);
       await loadAppointments();
     } catch (err) {
-      setLoadError(err.response?.data?.message || 'Failed to update appointment status.');
+      toast.error(err.response?.data?.message || 'Failed to update appointment status.');
     } finally {
       setIsSubmittingStatus(false);
     }
@@ -99,13 +101,6 @@ function DoctorAppointments() {
     <DoctorLayout title="My Appointments" subtitle="View and manage your scheduled appointments.">
       <PageHeader title="My Appointments" subtitle={`${pagination.total} appointment${pagination.total === 1 ? '' : 's'}`} />
 
-      {actionMessage && (
-        <div className="alert alert-success alert-dismissible d-flex align-items-center gap-2" role="alert">
-          <i className="bi bi-check-circle-fill" />
-          <div className="flex-grow-1">{actionMessage}</div>
-          <button type="button" className="btn-close" onClick={() => setActionMessage('')} aria-label="Dismiss" />
-        </div>
-      )}
 
       <div className="dhms-card mb-4 p-3 p-md-4">
         <div className="row g-3 align-items-end">

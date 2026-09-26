@@ -9,6 +9,7 @@ import AppointmentStatusBadge from '../../components/shared/AppointmentStatusBad
 import DentalRecordFormModal from './DentalRecordFormModal.jsx';
 import TreatmentFormModal from './TreatmentFormModal.jsx';
 import PrescriptionFormModal from './PrescriptionFormModal.jsx';
+import { useToast } from '../../context/ToastContext.jsx';
 import * as doctorPortalService from '../../api/doctorPortalService.js';
 
 const TABS = [
@@ -32,6 +33,7 @@ function calculateAge(dob) {
 function PatientDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [activeTab, setActiveTab] = useState('overview');
   const [patient, setPatient] = useState(null);
@@ -47,7 +49,6 @@ function PatientDetails() {
   const [showTreatmentModal, setShowTreatmentModal] = useState(false);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [formApiError, setFormApiError] = useState('');
-  const [actionMessage, setActionMessage] = useState('');
 
   async function loadAll() {
     setIsLoading(true);
@@ -90,7 +91,7 @@ function PatientDetails() {
     try {
       await doctorPortalService.createRecord(id, payload);
       setShowRecordModal(false);
-      setActionMessage('Dental record added successfully.');
+      toast.success('Dental record added successfully.');
       await loadAll();
     } catch (err) {
       setFormApiError(err.response?.data?.message || 'Failed to save the dental record.');
@@ -103,7 +104,7 @@ function PatientDetails() {
     try {
       await doctorPortalService.createTreatment(id, payload);
       setShowTreatmentModal(false);
-      setActionMessage('Treatment added successfully.');
+      toast.success('Treatment added successfully.');
       await loadAll();
     } catch (err) {
       setFormApiError(err.response?.data?.message || 'Failed to save the treatment.');
@@ -116,7 +117,7 @@ function PatientDetails() {
     try {
       await doctorPortalService.createPrescription(id, payload);
       setShowPrescriptionModal(false);
-      setActionMessage('Prescription issued successfully.');
+      toast.success('Prescription issued successfully.');
       await loadAll();
     } catch (err) {
       setFormApiError(err.response?.data?.message || 'Failed to issue the prescription.');
@@ -156,13 +157,6 @@ function PatientDetails() {
         Back to patients
       </button>
 
-      {actionMessage && (
-        <div className="alert alert-success alert-dismissible d-flex align-items-center gap-2" role="alert">
-          <i className="bi bi-check-circle-fill" />
-          <div className="flex-grow-1">{actionMessage}</div>
-          <button type="button" className="btn-close" onClick={() => setActionMessage('')} aria-label="Dismiss" />
-        </div>
-      )}
 
       <div className="dhms-card p-4 mb-4">
         <div className="d-flex flex-wrap align-items-center gap-3">

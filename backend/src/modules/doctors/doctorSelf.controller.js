@@ -25,8 +25,17 @@ async function updateMyProfile(req, res, next) {
   }
 }
 
+async function updateMyAvailability(req, res, next) {
+  try {
+    const doctor = await doctorService.updateOwnAvailability(req.user.id, req.body.availability);
+    res.status(200).json({ status: 'ok', doctor });
+  } catch (err) {
+    next(err);
+  }
+}
+
 const updateMyProfileValidators = [
   body('phone').isString().trim().notEmpty().withMessage('Phone number is required.'),
 ];
 
-module.exports = { getMyProfile, updateMyProfile, updateMyProfileValidators };
+module.exports = { getMyProfile, updateMyProfile, updateMyProfileValidators, updateMyAvailability };
