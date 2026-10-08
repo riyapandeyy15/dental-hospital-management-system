@@ -801,3 +801,108 @@ body {
     animation: none !important;
   }
 }
+
+/* ======================================================================
+   Voice AI Assistant (Phase 10)
+   ====================================================================== */
+
+.dhms-ai-mic-btn {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--dhms-radius-sm);
+  border: 1px solid var(--dhms-border);
+  background: var(--dhms-surface);
+  color: var(--dhms-text-muted);
+  font-size: 1rem;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.dhms-ai-mic-btn:hover:not(:disabled) {
+  border-color: var(--dhms-primary);
+  color: var(--dhms-primary-dark);
+}
+.dhms-ai-mic-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dhms-ai-mic-btn.listening {
+  background: var(--dhms-danger);
+  border-color: var(--dhms-danger);
+  color: #fff;
+  animation: dhms-ai-mic-pulse 1.4s ease-in-out infinite;
+}
+.dhms-ai-mic-btn.processing {
+  background: var(--dhms-warning-bg);
+  border-color: var(--dhms-warning);
+  color: var(--dhms-warning);
+}
+@keyframes dhms-ai-mic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--dhms-primary-rgb), 0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(194, 57, 52, 0.18);
+  }
+}
+
+.dhms-ai-mic-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem 0.65rem;
+  font-size: 0.78rem;
+  color: var(--dhms-text-muted);
+}
+.dhms-ai-mic-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dhms-danger);
+  animation: dhms-ai-mic-dot-blink 1.2s ease-in-out infinite;
+}
+@keyframes dhms-ai-mic-dot-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.dhms-ai-input-hint {
+  padding: 0.4rem 1rem 0.65rem;
+  font-size: 0.75rem;
+  color: var(--dhms-text-muted);
+}
+
+.dhms-ai-speak-btn {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--dhms-text-muted);
+  font-size: 0.9rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.dhms-ai-speak-btn:hover {
+  background: rgba(var(--dhms-primary-rgb), 0.1);
+  color: var(--dhms-primary-dark);
+}
+.dhms-ai-speak-btn[aria-pressed='true'] {
+  color: var(--dhms-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dhms-ai-mic-btn,
+  .dhms-ai-mic-dot {
+    animation: none !important;
+  }
+}

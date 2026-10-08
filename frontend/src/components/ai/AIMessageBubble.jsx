@@ -4,7 +4,11 @@ function formatTime(date) {
 
 // role: 'user' | 'assistant' | 'error' (a failed assistant turn, rendered
 // distinctly with a Retry action instead of plain text).
-function AIMessageBubble({ role, content, timestamp, onRetry }) {
+//
+// Speak/stop controls only ever apply to 'assistant' messages - never user
+// input, never error text - and only render at all when the browser
+// supports speech synthesis (`canSpeak`).
+function AIMessageBubble({ role, content, timestamp, onRetry, canSpeak, isSpeaking, onSpeak, onStopSpeak }) {
   if (role === 'user') {
     return (
       <div className="dhms-ai-row dhms-ai-row-user">
@@ -42,7 +46,21 @@ function AIMessageBubble({ role, content, timestamp, onRetry }) {
       </div>
       <div className="dhms-ai-bubble dhms-ai-bubble-assistant">
         <div className="dhms-ai-bubble-text">{content}</div>
-        {timestamp && <div className="dhms-ai-timestamp">{formatTime(timestamp)}</div>}
+        <div className="d-flex align-items-center justify-content-between gap-2 mt-1">
+          {timestamp ? <div className="dhms-ai-timestamp mt-0">{formatTime(timestamp)}</div> : <span />}
+          {canSpeak && (
+            <button
+              type="button"
+              className="dhms-ai-speak-btn"
+              onClick={isSpeaking ? onStopSpeak : onSpeak}
+              aria-pressed={isSpeaking}
+              aria-label={isSpeaking ? 'Stop speaking' : 'Speak response aloud'}
+              title={isSpeaking ? 'Stop speaking' : 'Speak response aloud'}
+            >
+              <i className={`bi ${isSpeaking ? 'bi-stop-circle-fill' : 'bi-volume-up-fill'}`} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

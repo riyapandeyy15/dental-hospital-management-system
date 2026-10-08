@@ -7,6 +7,7 @@ import AIWelcomeState from '../../components/ai/AIWelcomeState.jsx';
 import AISafetyNotice from '../../components/ai/AISafetyNotice.jsx';
 import AIInput from '../../components/ai/AIInput.jsx';
 import * as aiAssistantService from '../../api/aiAssistantService.js';
+import useSpeechSynthesis from '../../hooks/useSpeechSynthesis.js';
 
 // Only the last few turns are kept client-side and sent as context - this is
 // a session-only conversation (nothing persisted to a database for Phase 9),
@@ -20,6 +21,7 @@ function AIAssistant() {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef(null);
+  const { isSupported: canSpeak, speakingId, speak, stop: stopSpeaking } = useSpeechSynthesis();
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -64,6 +66,7 @@ function AIAssistant() {
         <div>
           <h2 className="h5 fw-semibold mb-0">DentiFlow AI</h2>
           <p className="text-muted mb-0 small">Dental Assistant &middot; General dental guidance, explained simply.</p>
+          {!canSpeak && <p className="text-muted mb-0 small">Voice output isn't supported in this browser.</p>}
         </div>
       </div>
 
@@ -83,7 +86,16 @@ function AIAssistant() {
                 m.role === 'error' ? (
                   <AIMessageBubble key={m.id} role="error" content={m.content} onRetry={() => retry(m.retryText)} />
                 ) : (
-                  <AIMessageBubble key={m.id} role={m.role} content={m.content} timestamp={m.timestamp} />
+                  <AIMessageBubble
+                    key={m.id}
+                    role={m.role}
+                    content={m.content}
+                    timestamp={m.timestamp}
+                    canSpeak={m.role === 'assistant' && canSpeak}
+                    isSpeaking={speakingId === m.id}
+                    onSpeak={() => speak(m.id, m.content)}
+                    onStopSpeak={stopSpeaking}
+                  />
                 )
               )}
               {isSending && <AITypingIndicator />}
@@ -91,7 +103,7 @@ function AIAssistant() {
           )}
         </div>
 
-        <AIInput value={input} onChange={setInput} onSubmit={() => send(input)} disabled={isSending} />
+        <AIInput value={input} onChange={setInput} onSubmit={() => send(input)} disabled={isSending} onBeforeListen={stopSpeaking} />
       </div>
     </PatientLayout>
   );
