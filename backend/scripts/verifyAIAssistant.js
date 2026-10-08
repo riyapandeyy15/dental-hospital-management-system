@@ -3,9 +3,9 @@
 // and asserts validation, authentication and role-scoping all hold - then
 // cleans everything up.
 //
-// Does NOT require a real AI_API_KEY to pass: if the key isn't configured,
-// the endpoint must still fail safely (no stack trace / provider details
-// leaked), which this script verifies either way.
+// Does NOT require a real GEMINI_API_KEY to pass: if the key isn't
+// configured, the endpoint must still fail safely (no stack trace /
+// provider details leaked), which this script verifies either way.
 //
 // Run with: npm run verify:ai-assistant
 
@@ -146,8 +146,8 @@ async function main() {
     }
 
     // 7. A valid request from a patient either succeeds with a real reply
-    // (if AI_API_KEY is configured) or fails safely with no leaked details
-    // (if it isn't) - this script must pass in both cases.
+    // (if GEMINI_API_KEY is configured) or fails safely with no leaked
+    // details (if it isn't) - this script must pass in both cases.
     const validRes = await fetch(`${baseUrl}/ai/chat`, {
       method: 'POST',
       headers: asPatient,
@@ -158,13 +158,13 @@ async function main() {
       if (validRes.status === 200) {
         assert(validBody.success === true, 'expected success:true');
         assert(typeof validBody.data?.message === 'string' && validBody.data.message.length > 0, 'expected a non-empty reply');
-        record('Patient receives a real AI reply (AI_API_KEY is configured)', true);
+        record('Patient receives a real AI reply (GEMINI_API_KEY is configured)', true);
       } else {
         assert(validRes.status === 500, `expected 200 or 500, got ${validRes.status}`);
         assert(validBody.status === 'error', 'expected error envelope');
-        const leaked = /api[_-]?key|anthropic|sk-ant|stack|ECONNREFUSED/i.test(validBody.message || '');
+        const leaked = /api[_-]?key|anthropic|sk-ant|gemini|google|generativelanguage|stack|ECONNREFUSED/i.test(validBody.message || '');
         assert(!leaked, `error message looks like it leaked provider details: ${validBody.message}`);
-        record('Patient request fails safely with no leaked details (AI_API_KEY not configured)', true);
+        record('Patient request fails safely with no leaked details (GEMINI_API_KEY not configured)', true);
       }
     } catch (err) {
       record('Patient AI chat request behaves correctly', false, err.message);
