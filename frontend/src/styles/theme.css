@@ -533,3 +533,271 @@ body {
     visibility: hidden;
   }
 }
+
+/* ======================================================================
+   AI Dental Assistant (Phase 9)
+   ====================================================================== */
+
+.dhms-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+.dhms-ai-header-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--dhms-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--dhms-primary) 0%, var(--dhms-primary-dark) 100%);
+  color: #fff;
+}
+
+.dhms-ai-shell {
+  display: flex;
+  flex-direction: column;
+  background: var(--dhms-surface);
+  border: 1px solid var(--dhms-border);
+  border-radius: var(--dhms-radius);
+  box-shadow: var(--dhms-shadow-sm);
+  height: min(70vh, 720px);
+  min-height: 420px;
+  overflow: hidden;
+}
+.dhms-ai-shell-notice {
+  padding: 0.75rem 1.25rem 0;
+  flex-shrink: 0;
+}
+
+.dhms-ai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ---------- Welcome state ---------- */
+.dhms-ai-welcome {
+  margin: auto;
+  text-align: center;
+  max-width: 560px;
+  padding: 1.5rem 1rem;
+}
+.dhms-ai-welcome-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  background: var(--dhms-primary-light);
+  color: var(--dhms-primary-dark);
+}
+.dhms-ai-suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  text-align: left;
+}
+.dhms-ai-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: left;
+  border: 1px solid var(--dhms-border);
+  background: var(--dhms-surface);
+  border-radius: var(--dhms-radius-sm);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--dhms-text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.dhms-ai-suggestion i {
+  color: var(--dhms-primary);
+  flex-shrink: 0;
+}
+.dhms-ai-suggestion:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--dhms-shadow-sm);
+  border-color: rgba(var(--dhms-primary-rgb), 0.4);
+}
+@media (max-width: 575.98px) {
+  .dhms-ai-suggestions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Safety notice ---------- */
+.dhms-ai-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--dhms-primary-light);
+  color: var(--dhms-primary-dark);
+  border-radius: var(--dhms-radius-sm);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+.dhms-ai-notice i {
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+/* ---------- Message rows / bubbles ---------- */
+.dhms-ai-row {
+  display: flex;
+  gap: 0.6rem;
+  max-width: 100%;
+  animation: dhms-fade-in 0.2s ease;
+}
+.dhms-ai-row-user {
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: flex-end;
+  max-width: min(78%, 520px);
+}
+.dhms-ai-row-assistant {
+  align-self: flex-start;
+  max-width: min(82%, 560px);
+}
+.dhms-ai-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dhms-primary-light);
+  color: var(--dhms-primary-dark);
+  font-size: 0.9rem;
+}
+.dhms-ai-bubble {
+  border-radius: var(--dhms-radius);
+  padding: 0.7rem 1rem;
+}
+.dhms-ai-bubble-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+.dhms-ai-bubble-user {
+  background: var(--dhms-primary);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.dhms-ai-bubble-assistant {
+  background: #f3f5f8;
+  color: var(--dhms-text);
+  border-bottom-left-radius: 4px;
+}
+.dhms-ai-bubble-error {
+  background: var(--dhms-danger-bg);
+  color: var(--dhms-danger);
+  border-bottom-left-radius: 4px;
+}
+.dhms-ai-timestamp {
+  font-size: 0.68rem;
+  color: var(--dhms-text-muted);
+  margin-top: 0.3rem;
+}
+
+/* ---------- Typing indicator ---------- */
+.dhms-ai-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.85rem 1.1rem;
+}
+.dhms-ai-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dhms-text-muted);
+  animation: dhms-ai-bounce 1.2s infinite ease-in-out;
+}
+.dhms-ai-typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.dhms-ai-typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes dhms-ai-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* ---------- Input bar ---------- */
+.dhms-ai-input-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--dhms-border);
+  background: var(--dhms-surface);
+  flex-shrink: 0;
+}
+.dhms-ai-input {
+  flex: 1;
+  resize: none;
+  border: 1px solid var(--dhms-border);
+  border-radius: var(--dhms-radius-sm);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.9rem;
+  max-height: 120px;
+  min-height: 42px;
+  background: #fafbfc;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.dhms-ai-input:focus {
+  outline: none;
+  background: var(--dhms-surface);
+  border-color: var(--dhms-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--dhms-primary-rgb), 0.15);
+}
+.dhms-ai-send-btn {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--dhms-radius-sm);
+  padding: 0;
+}
+
+@media (max-width: 575.98px) {
+  .dhms-ai-shell {
+    height: calc(100vh - 290px);
+    min-height: 380px;
+  }
+  .dhms-ai-row-user,
+  .dhms-ai-row-assistant {
+    max-width: 92%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dhms-ai-row,
+  .dhms-ai-suggestion,
+  .dhms-ai-typing-dot {
+    transition: none !important;
+    animation: none !important;
+  }
+}

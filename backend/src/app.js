@@ -26,6 +26,9 @@ const adminAppointmentRoutes = require('./modules/appointments/adminAppointment.
 // Phase 8 - admin reports/dashboard
 const adminDashboardRoutes = require('./modules/reports/adminDashboard.routes');
 
+// Phase 9 - AI Dental Assistant
+const aiRoutes = require('./modules/ai/ai.routes');
+
 const app = express();
 
 app.use(helmet());
@@ -66,6 +69,11 @@ app.use('/api/v1/appointments', adminAppointmentRoutes);
 // Admin dashboard/reports (Phase 8) - aggregate statistics only, no
 // per-record management lives here.
 app.use('/api/v1/admin/dashboard', adminDashboardRoutes);
+
+// AI Dental Assistant (Phase 9) - patient-only, text-based, educational
+// only. Never touches Mongoose models directly - only calls the AI
+// provider through aiProvider.js.
+app.use('/api/v1/ai', aiRoutes);
 
 // Health check endpoint - confirms the API process is running and reports
 // whether the MongoDB connection is currently up.

@@ -10,6 +10,9 @@ const env = {
   SEED_ADMIN_NAME: process.env.SEED_ADMIN_NAME || '',
   SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL || '',
   SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD || '',
+  AI_API_KEY: process.env.AI_API_KEY || '',
+  AI_MODEL: process.env.AI_MODEL || 'claude-haiku-4-5-20251001',
+  AI_MAX_TOKENS: parseInt(process.env.AI_MAX_TOKENS, 10) || 500,
 };
 
 module.exports = env;

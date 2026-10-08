@@ -15,9 +15,11 @@
     "verify:doctor-portal": "node scripts/verifyDoctorPortal.js",
     "seed:doctor-availability": "node scripts/seedDoctorAvailability.js",
     "verify:patient-portal": "node scripts/verifyPatientPortal.js",
-    "verify:admin-dashboard": "node scripts/verifyAdminDashboard.js"
+    "verify:admin-dashboard": "node scripts/verifyAdminDashboard.js",
+    "verify:ai-assistant": "node scripts/verifyAIAssistant.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

@@ -19,6 +19,7 @@ import PublicDoctorProfile from '../pages/patient/PublicDoctorProfile.jsx';
 import PatientAppointments from '../pages/patient/PatientAppointments.jsx';
 import PatientAppointmentDetails from '../pages/patient/PatientAppointmentDetails.jsx';
 import PatientProfile from '../pages/patient/PatientProfile.jsx';
+import AIAssistant from '../pages/patient/AIAssistant.jsx';
 import PublicLayout from '../layouts/PublicLayout.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import { ROLES } from '../utils/constants.js';
@@ -169,6 +170,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={[ROLES.PATIENT]}>
             <PatientProfile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/patient/assistant"
+        element={
+          <ProtectedRoute allowedRoles={[ROLES.PATIENT]}>
+            <AIAssistant />
           </ProtectedRoute>
         }
       />

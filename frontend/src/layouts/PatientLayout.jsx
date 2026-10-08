@@ -4,6 +4,7 @@ const PATIENT_NAV_ITEMS = [
   { label: 'Dashboard', icon: 'bi-speedometer2', to: '/patient/dashboard' },
   { label: 'Find a Doctor', icon: 'bi-search-heart', to: '/patient/find-doctor' },
   { label: 'My Appointments', icon: 'bi-calendar-check', to: '/patient/appointments' },
+  { label: 'AI Assistant', icon: 'bi-stars', to: '/patient/assistant' },
   { label: 'My Profile', icon: 'bi-person-circle', to: '/patient/profile' },
 ];
 
