@@ -16,7 +16,8 @@
     "seed:doctor-availability": "node scripts/seedDoctorAvailability.js",
     "verify:patient-portal": "node scripts/verifyPatientPortal.js",
     "verify:admin-dashboard": "node scripts/verifyAdminDashboard.js",
-    "verify:ai-assistant": "node scripts/verifyAIAssistant.js"
+    "verify:ai-assistant": "node scripts/verifyAIAssistant.js",
+    "verify:multilingual-ai": "node scripts/verifyMultilingualAI.js"
   },
   "dependencies": {
     "@google/genai": "^2.28.0",

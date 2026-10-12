@@ -878,6 +878,23 @@ body {
   color: var(--dhms-text-muted);
 }
 
+.dhms-ai-mic-lang-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem 0;
+  font-size: 0.78rem;
+  color: var(--dhms-text-muted);
+}
+.dhms-ai-mic-lang-label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+.dhms-ai-mic-lang-select {
+  max-width: 220px;
+  font-size: 0.78rem;
+}
+
 .dhms-ai-speak-btn {
   width: 26px;
   height: 26px;

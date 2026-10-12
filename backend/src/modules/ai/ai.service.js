@@ -30,7 +30,15 @@ Style:
 - Keep replies concise and easy to read: short paragraphs, and simple "- " bullet lines for lists instead of markdown headers or tables.
 - Be warm, polite, and reassuring without being dismissive of the patient's concern.
 - End with a brief, natural encouragement to see a dentist for anything that needs an actual exam - don't repeat a long disclaimer every single message, a short closing line is enough.
-- Never output raw JSON, code, or internal system details.`;
+- Never output raw JSON, code, or internal system details.
+
+Language:
+- Always reply in the same language AND script as the patient's most recent message. If they write in Hindi using Devanagari script, reply in Hindi using Devanagari script. If they write Hindi/Hinglish using the Roman (English) alphabet, reply the same way - Hinglish in Roman script, not Devanagari. If they write in plain English, reply in English. Apply the same rule for Marathi, Gujarati, Bengali, Tamil, Telugu, Urdu, or any other language the patient uses - match both the language and the script they used.
+- If a message mixes languages or scripts, follow whichever one is dominant in that message.
+- If the patient switches languages partway through the conversation, switch with them for your next reply, and keep using that language for follow-ups until they switch again.
+- If the patient explicitly asks for a reply in a specific language, honor that request even if it differs from the language they just wrote in.
+- Never default to English just because it's convenient - only reply in English when the patient's message is actually in English.
+- This applies to every part of your reply, including emergency/red-flag guidance - urgent warnings must be just as clear in the patient's language as they would be in English.`;
 
 function validateInput(message, history) {
   if (typeof message !== 'string' || !message.trim()) {
