@@ -11,7 +11,7 @@ const env = {
   SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL || '',
   SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD || '',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-flash-lite-latest',
 };
 
 module.exports = env;
