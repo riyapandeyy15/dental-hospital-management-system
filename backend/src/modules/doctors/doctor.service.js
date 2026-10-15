@@ -27,6 +27,8 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+const DOCTOR_STATUS_FILTERS = ['ACTIVE', 'INACTIVE'];
+
 // Public-facing subset for patients browsing doctors - deliberately leaves
 // out email and phone (contact happens through the booking flow, not
 // directly) while still surfacing legitimate public professional
@@ -46,6 +48,18 @@ function toPublicDoctor(doctorPlain, userPlain) {
 async function listDoctors({ search, status, page = 1, limit = 10 }) {
   const pageNum = Math.max(parseInt(page, 10) || 1, 1);
   const limitNum = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
+
+  // `status` is query-string input. The two checks below it only ever
+  // compare it with strict equality against a literal string, so it was
+  // never assignable into a Mongo query object here (no operator-injection
+  // vector like the appointment-list filters had) - but an unsupported
+  // value was previously just silently ignored instead of rejected. Reject
+  // it explicitly for consistency with every other list filter in the app.
+  if (status !== undefined) {
+    if (typeof status !== 'string' || !DOCTOR_STATUS_FILTERS.includes(status)) {
+      throw new ApiError(400, `status must be one of ${DOCTOR_STATUS_FILTERS.join(', ')}.`);
+    }
+  }
 
   const pipeline = [
     { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },

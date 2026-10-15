@@ -17,7 +17,10 @@
     "verify:patient-portal": "node scripts/verifyPatientPortal.js",
     "verify:admin-dashboard": "node scripts/verifyAdminDashboard.js",
     "verify:ai-assistant": "node scripts/verifyAIAssistant.js",
-    "verify:multilingual-ai": "node scripts/verifyMultilingualAI.js"
+    "verify:multilingual-ai": "node scripts/verifyMultilingualAI.js",
+    "verify:ai-history": "node scripts/verifyAIHistoryValidation.js",
+    "verify:appointment-status-filter": "node scripts/verifyAppointmentStatusFilter.js",
+    "verify:doctor-status-filter": "node scripts/verifyDoctorStatusFilter.js"
   },
   "dependencies": {
     "@google/genai": "^2.28.0",

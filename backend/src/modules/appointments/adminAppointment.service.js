@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const Appointment = require('../../models/Appointment');
+const { APPOINTMENT_STATUSES } = Appointment;
 const ApiError = require('../../utils/apiError');
 const { ALLOWED_TRANSITIONS } = require('./appointment.service');
 const { createAppointment: createAppointmentShared } = require('./patientAppointment.service');
@@ -32,7 +33,17 @@ async function listAllAppointments({ doctorId, patientId, status, date, search, 
   const query = {};
   if (doctorId && mongoose.Types.ObjectId.isValid(doctorId)) query.doctorId = doctorId;
   if (patientId && mongoose.Types.ObjectId.isValid(patientId)) query.patientId = patientId;
-  if (status) query.status = status;
+  if (status !== undefined) {
+    // `status` comes straight from the query string - express can turn
+    // `?status[$ne]=null` into an object here, so this must reject anything
+    // that isn't literally one of the known status strings before it ever
+    // reaches a Mongoose query object (never trust it enough to assign
+    // query.status = status directly).
+    if (typeof status !== 'string' || !APPOINTMENT_STATUSES.includes(status)) {
+      throw new ApiError(400, `status must be one of ${APPOINTMENT_STATUSES.join(', ')}.`);
+    }
+    query.status = status;
+  }
   if (date) {
     const dayStart = parseDateOnly(date);
     const dayEnd = new Date(dayStart);

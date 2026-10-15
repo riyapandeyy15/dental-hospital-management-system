@@ -23,7 +23,7 @@ async function run() {
     name: 'Verify Script Admin',
     email: `verify-admin-${Date.now()}@example.com`,
     passwordHash: 'placeholder-hash',
-    role: 'admin',
+    role: 'ADMIN',
   });
   console.log('User model OK:', adminUser._id.toString());
 
@@ -31,7 +31,7 @@ async function run() {
     name: 'Verify Script Doctor',
     email: `verify-doctor-${Date.now()}@example.com`,
     passwordHash: 'placeholder-hash',
-    role: 'doctor',
+    role: 'DOCTOR',
   });
 
   const doctor = await Doctor.create({

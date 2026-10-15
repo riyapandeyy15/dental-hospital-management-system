@@ -8,6 +8,7 @@ import AISafetyNotice from '../../components/ai/AISafetyNotice.jsx';
 import AIInput from '../../components/ai/AIInput.jsx';
 import * as aiAssistantService from '../../api/aiAssistantService.js';
 import useSpeechSynthesis from '../../hooks/useSpeechSynthesis.js';
+import { buildHistoryForRequest, reconcileAfterRetry } from '../../utils/aiConversation.js';
 
 // Only the last few turns are kept client-side and sent as context - this is
 // a session-only conversation (nothing persisted to a database for Phase 9),
@@ -31,11 +32,9 @@ function AIAssistant() {
     const trimmed = text.trim();
     if (!trimmed || isSending) return;
 
-    const userMessage = { id: nextId++, role: 'user', content: trimmed, timestamp: new Date() };
-    const historyForRequest = messages
-      .filter((m) => m.role === 'user' || m.role === 'assistant')
-      .slice(-MAX_HISTORY_TURNS)
-      .map((m) => ({ role: m.role, content: m.content }));
+    const userMessageId = nextId++;
+    const userMessage = { id: userMessageId, role: 'user', content: trimmed, timestamp: new Date() };
+    const historyForRequest = buildHistoryForRequest(messages, MAX_HISTORY_TURNS);
 
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
@@ -46,15 +45,18 @@ function AIAssistant() {
       setMessages((prev) => [...prev, { id: nextId++, role: 'assistant', content: reply, timestamp: new Date() }]);
     } catch (err) {
       const message = err.response?.data?.message || "Sorry, I couldn't process that request right now. Please try again in a moment.";
-      setMessages((prev) => [...prev, { id: nextId++, role: 'error', content: message, retryText: trimmed }]);
+      setMessages((prev) => [...prev, { id: nextId++, role: 'error', content: message, retryText: trimmed, failedMessageId: userMessageId }]);
     } finally {
       setIsSending(false);
     }
   }
 
-  function retry(text) {
-    setMessages((prev) => prev.filter((m) => !(m.role === 'error' && m.retryText === text)));
-    send(text);
+  // Removes the failed user turn and its error bubble before resending, so
+  // a retry replaces that turn in place instead of duplicating it (both on
+  // screen and in the history sent on the next request).
+  function retry(errorMessage) {
+    setMessages((prev) => reconcileAfterRetry(prev, errorMessage));
+    send(errorMessage.retryText);
   }
 
   return (
@@ -84,7 +86,7 @@ function AIAssistant() {
             <>
               {messages.map((m) =>
                 m.role === 'error' ? (
-                  <AIMessageBubble key={m.id} role="error" content={m.content} onRetry={() => retry(m.retryText)} />
+                  <AIMessageBubble key={m.id} role="error" content={m.content} onRetry={() => retry(m)} />
                 ) : (
                   <AIMessageBubble
                     key={m.id}

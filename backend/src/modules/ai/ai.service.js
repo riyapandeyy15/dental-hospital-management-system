@@ -2,6 +2,16 @@ const ApiError = require('../../utils/apiError');
 const aiProvider = require('../../services/aiProvider');
 
 const MAX_MESSAGE_LENGTH = 1000;
+// Assistant replies are bounded by MAX_OUTPUT_TOKENS in aiProvider.js (a
+// token count), not by character count - a single 500-token reply with
+// bullet-point formatting routinely exceeds MAX_MESSAGE_LENGTH characters.
+// Once that reply is echoed back as history on the next turn, validating it
+// against the same 1000-character limit used for user-typed input rejects
+// a perfectly valid prior AI reply. History from 'assistant' turns is never
+// attacker-controlled (it only ever contains our own previously-generated
+// text), so it gets a separate, more generous ceiling here - still bounded,
+// just not conflated with the limit meant to cap user-supplied input.
+const MAX_ASSISTANT_HISTORY_LENGTH = 4000;
 const MAX_HISTORY_MESSAGES = 8; // last 4 user/assistant turns, regardless of what the client sends
 
 const SYSTEM_PROMPT = `You are DentiFlow's AI Dental Assistant, built into a dental hospital's patient portal.
@@ -56,9 +66,12 @@ function validateInput(message, history) {
         !turn ||
         typeof turn !== 'object' ||
         !['user', 'assistant'].includes(turn.role) ||
-        typeof turn.content !== 'string' ||
-        turn.content.length > MAX_MESSAGE_LENGTH
+        typeof turn.content !== 'string'
       ) {
+        throw new ApiError(400, 'Invalid conversation history.');
+      }
+      const maxLength = turn.role === 'assistant' ? MAX_ASSISTANT_HISTORY_LENGTH : MAX_MESSAGE_LENGTH;
+      if (turn.content.length > maxLength) {
         throw new ApiError(400, 'Invalid conversation history.');
       }
     }

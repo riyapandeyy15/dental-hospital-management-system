@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const Appointment = require('../../models/Appointment');
+const { APPOINTMENT_STATUSES } = Appointment;
 const ApiError = require('../../utils/apiError');
 
 // Only these transitions are allowed - a doctor cannot jump straight from
@@ -54,7 +55,14 @@ async function listAppointmentsForDoctor(doctorId, { when, status, patientId, se
     query.patientId = patientId;
   }
 
-  if (status) {
+  if (status !== undefined) {
+    // Same rejection as the admin appointment list - `status` is query-string
+    // input and must never be assigned into the Mongo query unchecked (an
+    // object-shaped value like `?status[$ne]=null` would otherwise become a
+    // live Mongo operator).
+    if (typeof status !== 'string' || !APPOINTMENT_STATUSES.includes(status)) {
+      throw new ApiError(400, `status must be one of ${APPOINTMENT_STATUSES.join(', ')}.`);
+    }
     query.status = status;
   }
 
