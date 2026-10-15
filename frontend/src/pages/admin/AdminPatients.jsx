@@ -3,9 +3,12 @@ import { useCallback, useEffect, useState } from 'react';
 import AdminLayout from '../../layouts/AdminLayout.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
 import SearchBar from '../../components/shared/SearchBar.jsx';
+import SegmentedFilter from '../../components/shared/SegmentedFilter.jsx';
+import IconButton from '../../components/shared/IconButton.jsx';
 import Avatar from '../../components/shared/Avatar.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
+import { SkeletonTable } from '../../components/shared/Skeletons.jsx';
 import ConfirmDialog from '../../components/shared/ConfirmDialog.jsx';
 import PatientFormModal from './PatientFormModal.jsx';
 import AdminPatientDetailsModal from './AdminPatientDetailsModal.jsx';
@@ -14,21 +17,17 @@ import * as adminPatientService from '../../api/adminPatientService.js';
 
 const PAGE_SIZE = 10;
 const STATUS_OPTIONS = [
-  { value: 'ALL', label: 'All' },
-  { value: 'ACTIVE', label: 'Active' },
-  { value: 'INACTIVE', label: 'Inactive' },
+  { value: 'ALL', label: 'All Patients', icon: 'bi-people' },
+  { value: 'ACTIVE', label: 'Active', icon: 'bi-check-circle' },
+  { value: 'INACTIVE', label: 'Inactive', icon: 'bi-slash-circle' },
 ];
-
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-}
 
 function AdminPatients() {
   const toast = useToast();
 
   const [patients, setPatients] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
+  const [statusCounts, setStatusCounts] = useState({ ALL: null, ACTIVE: null, INACTIVE: null });
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
 
@@ -60,10 +59,31 @@ function AdminPatients() {
     }
   }, [search, statusFilter, page]);
 
+  // Real per-status counts for the segmented filter, independent of the
+  // current search/status filter - mirrors the pattern already used by the
+  // Doctor Management `stats` field, just computed client-side since the
+  // patient list endpoint doesn't return it itself.
+  const loadStatusCounts = useCallback(async () => {
+    try {
+      const [all, active, inactive] = await Promise.all([
+        adminPatientService.listPatients({ status: 'ALL', limit: 1 }),
+        adminPatientService.listPatients({ status: 'ACTIVE', limit: 1 }),
+        adminPatientService.listPatients({ status: 'INACTIVE', limit: 1 }),
+      ]);
+      setStatusCounts({ ALL: all.pagination.total, ACTIVE: active.pagination.total, INACTIVE: inactive.pagination.total });
+    } catch {
+      // Non-critical - the segmented control simply omits counts if this fails.
+    }
+  }, []);
+
   useEffect(() => {
     const timeout = setTimeout(loadPatients, 300);
     return () => clearTimeout(timeout);
   }, [loadPatients]);
+
+  useEffect(() => {
+    loadStatusCounts();
+  }, [loadStatusCounts]);
 
   useEffect(() => {
     setPage(1);
@@ -90,7 +110,7 @@ function AdminPatients() {
         toast.success('Patient updated successfully.');
       }
       setFormModal({ show: false, mode: 'add', patient: null });
-      await loadPatients();
+      await Promise.all([loadPatients(), loadStatusCounts()]);
     } catch (err) {
       setFormApiError(err.response?.data?.message || 'Something went wrong. Please try again.');
       throw err;
@@ -104,7 +124,7 @@ function AdminPatients() {
       await adminPatientService.setPatientStatus(statusTarget.id, !statusTarget.isActive);
       toast.success(`${statusTarget.name} was ${!statusTarget.isActive ? 'activated' : 'deactivated'} successfully.`);
       setStatusTarget(null);
-      await loadPatients();
+      await Promise.all([loadPatients(), loadStatusCounts()]);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update patient status.');
     } finally {
@@ -112,11 +132,14 @@ function AdminPatients() {
     }
   }
 
+  const filterOptions = STATUS_OPTIONS.map((opt) => ({ ...opt, count: statusCounts[opt.value] }));
+
   return (
     <AdminLayout title="Patient Management" subtitle="View and manage patient records.">
       <PageHeader
+        eyebrow="Administration"
         title="Patient Management"
-        subtitle={`${pagination.total} patient${pagination.total === 1 ? '' : 's'}`}
+        subtitle="Manage and monitor registered patients."
         actions={
           <button className="btn btn-primary d-inline-flex align-items-center gap-2" type="button" onClick={openAddModal}>
             <i className="bi bi-plus-lg" />
@@ -125,44 +148,25 @@ function AdminPatients() {
         }
       />
 
-      <div className="dhms-card mb-4 p-3 p-md-4">
-        <div className="row g-3 align-items-center">
-          <div className="col-12 col-md-7">
+      <div className="dhms-toolbar mb-4 p-3 p-md-4 dhms-stagger-in">
+        <div className="row g-3 align-items-end">
+          <div className="col-12 col-lg-6">
+            <span className="dhms-toolbar-label">Search</span>
             <SearchBar value={search} onChange={setSearch} placeholder="Search by name, phone or email" ariaLabel="Search patients" />
           </div>
-          <div className="col-12 col-md-5">
-            <div className="btn-group w-100" role="group" aria-label="Filter patients by status">
-              {STATUS_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`btn btn-sm ${statusFilter === option.value ? 'btn-primary' : 'btn-outline-secondary'}`}
-                  onClick={() => setStatusFilter(option.value)}
-                  aria-pressed={statusFilter === option.value}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+          <div className="col-12 col-lg-6">
+            <span className="dhms-toolbar-label">Status</span>
+            <SegmentedFilter options={filterOptions} value={statusFilter} onChange={setStatusFilter} ariaLabel="Filter patients by status" />
           </div>
         </div>
       </div>
 
-      <div className="dhms-card">
+      <div className="dhms-card dhms-stagger-in">
         <div className="p-0">
           {isLoading ? (
-            <LoadingState message="Loading patients..." />
+            <SkeletonTable rows={6} columns={4} />
           ) : loadError ? (
-            <div className="p-4">
-              <div className="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
-                <i className="bi bi-exclamation-triangle-fill mt-1" />
-                <div>{loadError}</div>
-              </div>
-              <button className="btn btn-outline-secondary btn-sm" type="button" onClick={loadPatients}>
-                <i className="bi bi-arrow-clockwise me-1" />
-                Retry
-              </button>
-            </div>
+            <ErrorState message={loadError} onRetry={loadPatients} />
           ) : patients.length === 0 ? (
             <EmptyState icon="bi-people" title="No patients found" message="Add your first patient to get started." />
           ) : (
@@ -197,34 +201,28 @@ function AdminPatients() {
                         </span>
                       </td>
                       <td className="text-end">
-                        <div className="btn-group btn-group-sm">
-                          <button
-                            className="btn btn-outline-secondary"
-                            type="button"
+                        <div className="dhms-icon-btn-group justify-content-end">
+                          <IconButton
+                            icon="bi-eye"
                             title="View patient"
-                            aria-label={`View ${patient.name}`}
+                            ariaLabel={`View ${patient.name}`}
+                            variant="view"
                             onClick={() => setViewPatientId(patient.id)}
-                          >
-                            <i className="bi bi-eye" />
-                          </button>
-                          <button
-                            className="btn btn-outline-primary"
-                            type="button"
+                          />
+                          <IconButton
+                            icon="bi-pencil"
                             title="Edit patient"
-                            aria-label={`Edit ${patient.name}`}
+                            ariaLabel={`Edit ${patient.name}`}
+                            variant="edit"
                             onClick={() => openEditModal(patient)}
-                          >
-                            <i className="bi bi-pencil" />
-                          </button>
-                          <button
-                            className={`btn ${patient.isActive ? 'btn-outline-danger' : 'btn-outline-success'}`}
-                            type="button"
+                          />
+                          <IconButton
+                            icon={patient.isActive ? 'bi-slash-circle' : 'bi-check-circle'}
                             title={patient.isActive ? 'Deactivate patient' : 'Activate patient'}
-                            aria-label={`${patient.isActive ? 'Deactivate' : 'Activate'} ${patient.name}`}
+                            ariaLabel={`${patient.isActive ? 'Deactivate' : 'Activate'} ${patient.name}`}
+                            variant={patient.isActive ? 'danger' : 'success'}
                             onClick={() => setStatusTarget(patient)}
-                          >
-                            <i className={`bi ${patient.isActive ? 'bi-slash-circle' : 'bi-check-circle'}`} />
-                          </button>
+                          />
                         </div>
                       </td>
                     </tr>

@@ -5,8 +5,9 @@ import PatientLayout from '../../layouts/PatientLayout.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
 import SearchBar from '../../components/shared/SearchBar.jsx';
 import Avatar from '../../components/shared/Avatar.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
+import { SkeletonDoctorGrid } from '../../components/shared/Skeletons.jsx';
 import * as publicDoctorService from '../../api/publicDoctorService.js';
 
 const PAGE_SIZE = 9;
@@ -54,7 +55,7 @@ function FindDoctor() {
     <PatientLayout title="Find a Doctor" subtitle="Browse doctors and book an appointment.">
       <PageHeader title="Find a Doctor" subtitle={`${pagination.total} doctor${pagination.total === 1 ? '' : 's'} available`} />
 
-      <div className="dhms-card mb-4 p-3 p-md-4">
+      <div className="dhms-card mb-4 p-3 p-md-4 dhms-stagger-in">
         <div className="row g-3">
           <div className="col-12 col-md-8">
             <SearchBar value={search} onChange={setSearch} placeholder="Search by name or specialization" ariaLabel="Search doctors" />
@@ -78,17 +79,10 @@ function FindDoctor() {
       </div>
 
       {isLoading ? (
-        <LoadingState message="Loading doctors..." />
+        <SkeletonDoctorGrid count={PAGE_SIZE} />
       ) : loadError ? (
-        <div className="dhms-card p-4">
-          <div className="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
-            <i className="bi bi-exclamation-triangle-fill mt-1" />
-            <div>{loadError}</div>
-          </div>
-          <button className="btn btn-outline-secondary btn-sm" type="button" onClick={load}>
-            <i className="bi bi-arrow-clockwise me-1" />
-            Retry
-          </button>
+        <div className="dhms-card">
+          <ErrorState message={loadError} onRetry={load} />
         </div>
       ) : doctors.length === 0 ? (
         <div className="dhms-card">
@@ -96,10 +90,10 @@ function FindDoctor() {
         </div>
       ) : (
         <>
-          <div className="row g-3 mb-4">
+          <div className="row g-3 mb-4 dhms-stagger-in">
             {doctors.map((doctor) => (
               <div className="col-12 col-sm-6 col-lg-4" key={doctor.id}>
-                <div className="dhms-card dhms-card--hover p-4 h-100 d-flex flex-column">
+                <div className="dhms-card dhms-doctor-card p-4 h-100 d-flex flex-column">
                   <div className="d-flex align-items-center gap-3 mb-3">
                     <Avatar name={doctor.name} size="lg" />
                     <div>

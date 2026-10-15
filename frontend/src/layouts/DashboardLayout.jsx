@@ -13,7 +13,7 @@ function roleLabel(role) {
 // bottom), an offcanvas version of the same sidebar on mobile, and a light
 // header with the page title and the signed-in user. AdminLayout /
 // DoctorLayout just supply their own nav items, title and subtitle.
-function DashboardLayout({ title, subtitle, navItems, offcanvasId, children }) {
+function DashboardLayout({ title, subtitle, navItems, offcanvasId, children, brandName = 'DentiFlow', brandTagline = 'Hospital Management' }) {
   const { user, logout } = useAuth();
 
   const brand = (
@@ -26,10 +26,10 @@ function DashboardLayout({ title, subtitle, navItems, offcanvasId, children }) {
       </div>
       <div>
         <div className="text-white fw-semibold" style={{ fontSize: '0.95rem', lineHeight: 1.2 }}>
-          Dental HMS
+          {brandName}
         </div>
         <div className="text-white-50" style={{ fontSize: '0.68rem' }}>
-          Hospital Management
+          {brandTagline}
         </div>
       </div>
     </div>

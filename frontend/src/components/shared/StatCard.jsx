@@ -8,9 +8,10 @@ function StatCard({
   iconBg = 'var(--dhms-primary-light)',
   iconColor = 'var(--dhms-primary-dark)',
   isPlaceholder = true,
+  colClass = 'col-12 col-sm-6 col-lg-3',
 }) {
   return (
-    <div className="col-12 col-sm-6 col-lg-3">
+    <div className={colClass}>
       <div className="dhms-card dhms-card--hover dhms-stat-card h-100">
         <div className="dhms-stat-icon" style={{ background: iconBg, color: iconColor }}>
           {icon && <i className={`bi ${icon}`} />}

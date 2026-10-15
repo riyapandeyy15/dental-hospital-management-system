@@ -14,7 +14,7 @@ function Sidebar({ items, className = '', dismissOffcanvas = false }) {
               <span className="dhms-sidebar-link disabled">
                 {item.icon && <i className={`bi ${item.icon}`} />}
                 <span className="flex-grow-1">{item.label}</span>
-                <span className="badge bg-white bg-opacity-10 text-white-50 fw-normal">Soon</span>
+                <span className="dhms-soon-badge">Soon</span>
               </span>
             ) : (
               <NavLink

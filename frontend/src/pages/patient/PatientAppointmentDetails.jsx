@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import PatientLayout from '../../layouts/PatientLayout.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
+import Avatar from '../../components/shared/Avatar.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
 import AppointmentStatusBadge from '../../components/shared/AppointmentStatusBadge.jsx';
 import ConfirmDialog from '../../components/shared/ConfirmDialog.jsx';
+import { SkeletonCard } from '../../components/shared/Skeletons.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as patientPortalService from '../../api/patientPortalService.js';
@@ -17,6 +19,23 @@ function formatDate(dateStr) {
 
 function formatDateTime(dateStr) {
   return new Date(dateStr).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function InfoRow({ icon, label, value }) {
+  return (
+    <div className="d-flex align-items-start gap-3 py-3 border-bottom">
+      <div
+        className="dhms-stat-icon flex-shrink-0"
+        style={{ width: 38, height: 38, fontSize: '0.95rem', background: 'var(--dhms-primary-light)', color: 'var(--dhms-primary-dark)' }}
+      >
+        <i className={`bi ${icon}`} />
+      </div>
+      <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+        <div className="text-muted small">{label}</div>
+        <div className="fw-medium">{value}</div>
+      </div>
+    </div>
+  );
 }
 
 // A patient can only ever land here for their own appointment - the backend
@@ -75,49 +94,45 @@ function PatientAppointmentDetails() {
       </button>
 
       {isLoading ? (
-        <LoadingState message="Loading appointment..." />
+        <SkeletonCard height={320} />
       ) : loadError ? (
-        <div className="alert alert-danger d-flex align-items-start gap-2" role="alert">
-          <i className="bi bi-exclamation-triangle-fill mt-1" />
-          <div>{loadError}</div>
+        <div className="dhms-card">
+          <ErrorState message={loadError} />
         </div>
       ) : (
-        <div className="dhms-card p-4 p-md-5" style={{ maxWidth: 640 }}>
-          <div className="d-flex justify-content-between align-items-start mb-4">
-            <div>
-              <h2 className="h5 fw-semibold mb-1">Dr. {appointment.doctorName}</h2>
-              <p className="text-muted mb-0">{appointment.specialization}</p>
+        <div className="dhms-card p-4 p-md-5 dhms-stagger-in" style={{ maxWidth: 640 }}>
+          <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+            <div className="d-flex align-items-center gap-3">
+              <Avatar name={appointment.doctorName} size="lg" />
+              <div>
+                <h2 className="h5 fw-semibold mb-1">Dr. {appointment.doctorName}</h2>
+                <p className="text-muted mb-0">{appointment.specialization}</p>
+              </div>
             </div>
             <AppointmentStatusBadge status={appointment.status} />
           </div>
 
-          <dl className="mb-0">
-            <div className="d-flex justify-content-between py-2 border-bottom">
-              <dt className="text-muted fw-normal">Patient</dt>
-              <dd className="mb-0">{user?.name}</dd>
+          <div>
+            <InfoRow icon="bi-person" label="Patient" value={user?.name} />
+            <InfoRow icon="bi-calendar-event" label="Date" value={formatDate(appointment.appointmentDate)} />
+            <InfoRow icon="bi-clock" label="Time" value={`${appointment.startTime} – ${appointment.endTime}`} />
+            <InfoRow icon="bi-chat-left-text" label="Reason" value={appointment.reason || '—'} />
+            <div className="d-flex align-items-start gap-3 py-3">
+              <div
+                className="dhms-stat-icon flex-shrink-0"
+                style={{ width: 38, height: 38, fontSize: '0.95rem', background: 'var(--dhms-primary-light)', color: 'var(--dhms-primary-dark)' }}
+              >
+                <i className="bi bi-hourglass-split" />
+              </div>
+              <div>
+                <div className="text-muted small">Booked on</div>
+                <div className="fw-medium">{formatDateTime(appointment.createdAt)}</div>
+              </div>
             </div>
-            <div className="d-flex justify-content-between py-2 border-bottom">
-              <dt className="text-muted fw-normal">Date</dt>
-              <dd className="mb-0 text-end">{formatDate(appointment.appointmentDate)}</dd>
-            </div>
-            <div className="d-flex justify-content-between py-2 border-bottom">
-              <dt className="text-muted fw-normal">Time</dt>
-              <dd className="mb-0">
-                {appointment.startTime} &ndash; {appointment.endTime}
-              </dd>
-            </div>
-            <div className="d-flex justify-content-between py-2 border-bottom">
-              <dt className="text-muted fw-normal">Reason</dt>
-              <dd className="mb-0 text-end">{appointment.reason || '—'}</dd>
-            </div>
-            <div className="d-flex justify-content-between py-2">
-              <dt className="text-muted fw-normal">Booked on</dt>
-              <dd className="mb-0">{formatDateTime(appointment.createdAt)}</dd>
-            </div>
-          </dl>
+          </div>
 
           {CANCELLABLE_STATUSES.includes(appointment.status) && (
-            <div className="mt-4 pt-3 border-top">
+            <div className="mt-2 pt-3 border-top">
               <button className="btn btn-outline-danger" type="button" onClick={() => setShowCancelConfirm(true)}>
                 <i className="bi bi-x-circle me-2" />
                 Cancel Appointment

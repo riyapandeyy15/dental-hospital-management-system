@@ -10,7 +10,14 @@ const PATIENT_NAV_ITEMS = [
 
 function PatientLayout({ children, title = 'Patient Dashboard', subtitle }) {
   return (
-    <DashboardLayout title={title} subtitle={subtitle} navItems={PATIENT_NAV_ITEMS} offcanvasId="patientSidebar">
+    <DashboardLayout
+      title={title}
+      subtitle={subtitle}
+      navItems={PATIENT_NAV_ITEMS}
+      offcanvasId="patientSidebar"
+      brandName="DentiFlow"
+      brandTagline="Patient Care Portal"
+    >
       {children}
     </DashboardLayout>
   );

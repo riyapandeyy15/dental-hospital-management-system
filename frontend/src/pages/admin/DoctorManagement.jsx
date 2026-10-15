@@ -8,17 +8,20 @@ import DoctorDetailsModal from './DoctorDetailsModal.jsx';
 import ConfirmDialog from '../../components/shared/ConfirmDialog.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
 import SearchBar from '../../components/shared/SearchBar.jsx';
+import SegmentedFilter from '../../components/shared/SegmentedFilter.jsx';
+import IconButton from '../../components/shared/IconButton.jsx';
 import Avatar from '../../components/shared/Avatar.jsx';
 import StatusBadge from '../../components/shared/StatusBadge.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
+import { SkeletonTable } from '../../components/shared/Skeletons.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 
 const PAGE_SIZE = 10;
 const STATUS_OPTIONS = [
-  { value: 'ALL', label: 'All' },
-  { value: 'ACTIVE', label: 'Active' },
-  { value: 'INACTIVE', label: 'Inactive' },
+  { value: 'ALL', label: 'All Doctors', icon: 'bi-person-badge' },
+  { value: 'ACTIVE', label: 'Active', icon: 'bi-check-circle' },
+  { value: 'INACTIVE', label: 'Inactive', icon: 'bi-slash-circle' },
 ];
 
 function DoctorManagement() {
@@ -131,11 +134,18 @@ function DoctorManagement() {
     }
   }
 
+  const filterOptions = [
+    { ...STATUS_OPTIONS[0], count: stats.total },
+    { ...STATUS_OPTIONS[1], count: stats.active },
+    { ...STATUS_OPTIONS[2], count: stats.inactive },
+  ];
+
   return (
     <AdminLayout title="Doctor Management" subtitle="Manage doctors, profiles and account status.">
       <PageHeader
+        eyebrow="Administration"
         title="Doctor Management"
-        subtitle={`${stats.total} total · ${stats.active} active · ${stats.inactive} inactive`}
+        subtitle="Manage doctor profiles and account status."
         actions={
           <button className="btn btn-primary d-inline-flex align-items-center gap-2" type="button" onClick={openAddModal}>
             <i className="bi bi-plus-lg" />
@@ -144,9 +154,10 @@ function DoctorManagement() {
         }
       />
 
-      <div className="dhms-card mb-4 p-3 p-md-4">
-        <div className="row g-3 align-items-center">
-          <div className="col-12 col-md-7">
+      <div className="dhms-toolbar mb-4 p-3 p-md-4 dhms-stagger-in">
+        <div className="row g-3 align-items-end">
+          <div className="col-12 col-lg-6">
+            <span className="dhms-toolbar-label">Search</span>
             <SearchBar
               value={search}
               onChange={setSearch}
@@ -154,39 +165,19 @@ function DoctorManagement() {
               ariaLabel="Search doctors"
             />
           </div>
-          <div className="col-12 col-md-5">
-            <div className="btn-group w-100" role="group" aria-label="Filter doctors by status">
-              {STATUS_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`btn btn-sm ${statusFilter === option.value ? 'btn-primary' : 'btn-outline-secondary'}`}
-                  onClick={() => setStatusFilter(option.value)}
-                  aria-pressed={statusFilter === option.value}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+          <div className="col-12 col-lg-6">
+            <span className="dhms-toolbar-label">Status</span>
+            <SegmentedFilter options={filterOptions} value={statusFilter} onChange={setStatusFilter} ariaLabel="Filter doctors by status" />
           </div>
         </div>
       </div>
 
-      <div className="dhms-card">
+      <div className="dhms-card dhms-stagger-in">
         <div className="p-0">
           {isLoading ? (
-            <LoadingState message="Loading doctors..." />
+            <SkeletonTable rows={6} columns={5} />
           ) : loadError ? (
-            <div className="p-4">
-              <div className="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
-                <i className="bi bi-exclamation-triangle-fill mt-1" />
-                <div>{loadError}</div>
-              </div>
-              <button className="btn btn-outline-secondary btn-sm" type="button" onClick={loadDoctors}>
-                <i className="bi bi-arrow-clockwise me-1" />
-                Retry
-              </button>
-            </div>
+            <ErrorState message={loadError} onRetry={loadDoctors} />
           ) : doctors.length === 0 ? (
             <EmptyState
               icon="bi-person-badge"
@@ -214,53 +205,51 @@ function DoctorManagement() {
                 <tbody>
                   {doctors.map((doctor) => (
                     <tr key={doctor.id}>
-                      <td>
+                      <td style={{ minWidth: 180 }}>
                         <div className="d-flex align-items-center gap-2">
                           <Avatar name={doctor.name} />
                           <div>
-                            <div className="fw-medium">{doctor.name}</div>
+                            <div className="fw-medium text-wrap">{doctor.name}</div>
                             {doctor.qualifications?.length > 0 && (
-                              <div className="text-muted small">{doctor.qualifications.join(', ')}</div>
+                              <div className="text-muted small text-wrap">{doctor.qualifications.join(', ')}</div>
                             )}
                           </div>
                         </div>
                       </td>
                       <td>{doctor.registrationNumber || <span className="text-muted">&mdash;</span>}</td>
-                      <td>{doctor.specialization}</td>
-                      <td>{doctor.email}</td>
+                      <td className="text-wrap" style={{ minWidth: 140 }}>
+                        {doctor.specialization}
+                      </td>
+                      <td className="text-wrap" style={{ minWidth: 160 }}>
+                        {doctor.email}
+                      </td>
                       <td>{doctor.phone || <span className="text-muted">&mdash;</span>}</td>
                       <td>
                         <StatusBadge active={doctor.isActive} />
                       </td>
                       <td className="text-end">
-                        <div className="btn-group btn-group-sm">
-                          <button
-                            className="btn btn-outline-secondary"
-                            type="button"
+                        <div className="dhms-icon-btn-group justify-content-end">
+                          <IconButton
+                            icon="bi-eye"
                             title="View details"
-                            aria-label={`View details for ${doctor.name}`}
+                            ariaLabel={`View details for ${doctor.name}`}
+                            variant="view"
                             onClick={() => setDetailsDoctor(doctor)}
-                          >
-                            <i className="bi bi-eye" />
-                          </button>
-                          <button
-                            className="btn btn-outline-primary"
-                            type="button"
+                          />
+                          <IconButton
+                            icon="bi-pencil"
                             title="Edit doctor"
-                            aria-label={`Edit ${doctor.name}`}
+                            ariaLabel={`Edit ${doctor.name}`}
+                            variant="edit"
                             onClick={() => openEditModal(doctor)}
-                          >
-                            <i className="bi bi-pencil" />
-                          </button>
-                          <button
-                            className={`btn ${doctor.isActive ? 'btn-outline-danger' : 'btn-outline-success'}`}
-                            type="button"
+                          />
+                          <IconButton
+                            icon={doctor.isActive ? 'bi-slash-circle' : 'bi-check-circle'}
                             title={doctor.isActive ? 'Deactivate doctor' : 'Activate doctor'}
-                            aria-label={`${doctor.isActive ? 'Deactivate' : 'Activate'} ${doctor.name}`}
+                            ariaLabel={`${doctor.isActive ? 'Deactivate' : 'Activate'} ${doctor.name}`}
+                            variant={doctor.isActive ? 'danger' : 'success'}
                             onClick={() => setStatusTarget(doctor)}
-                          >
-                            <i className={`bi ${doctor.isActive ? 'bi-slash-circle' : 'bi-check-circle'}`} />
-                          </button>
+                          />
                         </div>
                       </td>
                     </tr>

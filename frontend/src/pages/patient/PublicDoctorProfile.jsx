@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 import PatientLayout from '../../layouts/PatientLayout.jsx';
 import Avatar from '../../components/shared/Avatar.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
 import ConfirmDialog from '../../components/shared/ConfirmDialog.jsx';
+import { SkeletonCard } from '../../components/shared/Skeletons.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as publicDoctorService from '../../api/publicDoctorService.js';
 import * as patientPortalService from '../../api/patientPortalService.js';
@@ -38,6 +39,28 @@ function formatTimeDisplay(time) {
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
+function StepIndicator({ selectedSlot }) {
+  const steps = [
+    { key: 'doctor', label: 'Doctor', done: true },
+    { key: 'date', label: 'Date', done: true },
+    { key: 'time', label: 'Time', done: Boolean(selectedSlot), active: !selectedSlot },
+    { key: 'confirm', label: 'Confirm', active: Boolean(selectedSlot) },
+  ];
+  return (
+    <div className="dhms-steps">
+      {steps.map((step, i) => (
+        <div className="d-flex align-items-center" key={step.key}>
+          <div className={`dhms-step ${step.done ? 'done' : ''} ${step.active ? 'active' : ''}`}>
+            <span className="dhms-step-dot">{step.done ? <i className="bi bi-check-lg" /> : i + 1}</span>
+            <span className="d-none d-sm-inline">{step.label}</span>
+          </div>
+          {i < steps.length - 1 && <span className="dhms-step-connector mx-2" />}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PublicDoctorProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -58,7 +81,7 @@ function PublicDoctorProfile() {
   const [isBooking, setIsBooking] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(null);
 
-  useEffect(() => {
+  function loadDoctor() {
     setIsLoading(true);
     setLoadError('');
     publicDoctorService
@@ -66,7 +89,9 @@ function PublicDoctorProfile() {
       .then(setDoctor)
       .catch((err) => setLoadError(err.response?.data?.message || 'Doctor not found.'))
       .finally(() => setIsLoading(false));
-  }, [id]);
+  }
+
+  useEffect(loadDoctor, [id]);
 
   useEffect(() => {
     if (!doctor) return undefined;
@@ -121,7 +146,10 @@ function PublicDoctorProfile() {
   if (isLoading) {
     return (
       <PatientLayout title="Doctor Profile">
-        <LoadingState message="Loading doctor profile..." />
+        <SkeletonCard height={120} />
+        <div className="mt-4">
+          <SkeletonCard height={280} />
+        </div>
       </PatientLayout>
     );
   }
@@ -129,11 +157,10 @@ function PublicDoctorProfile() {
   if (loadError) {
     return (
       <PatientLayout title="Doctor Profile">
-        <div className="alert alert-danger d-flex align-items-start gap-2" role="alert">
-          <i className="bi bi-exclamation-triangle-fill mt-1" />
-          <div>{loadError}</div>
+        <div className="dhms-card">
+          <ErrorState message={loadError} />
         </div>
-        <button className="btn btn-outline-secondary" type="button" onClick={() => navigate('/patient/find-doctor')}>
+        <button className="btn btn-outline-secondary mt-3" type="button" onClick={() => navigate('/patient/find-doctor')}>
           <i className="bi bi-arrow-left me-1" />
           Back to Find a Doctor
         </button>
@@ -156,7 +183,7 @@ function PublicDoctorProfile() {
             Your appointment with Dr. {doctor.name} on {formatDateDisplay(selectedDate)} at{' '}
             {formatTimeDisplay(selectedSlot.startTime)} has been booked.
           </p>
-          <div className="d-flex gap-2 justify-content-center">
+          <div className="d-flex gap-2 justify-content-center flex-wrap">
             <button className="btn btn-primary" type="button" onClick={() => navigate('/patient/appointments')}>
               View My Appointments
             </button>
@@ -176,7 +203,7 @@ function PublicDoctorProfile() {
         Back to Find a Doctor
       </button>
 
-      <div className="dhms-card p-4 mb-4">
+      <div className="dhms-card p-4 mb-4 dhms-stagger-in">
         <div className="d-flex flex-wrap align-items-center gap-3">
           <Avatar name={doctor.name} size="lg" />
           <div>
@@ -193,11 +220,12 @@ function PublicDoctorProfile() {
         </div>
       </div>
 
-
-      <div className="dhms-card p-4 p-md-5">
+      <div className="dhms-card p-4 p-md-5 dhms-stagger-in">
         <h3 className="h6 fw-semibold text-uppercase text-muted mb-3" style={{ letterSpacing: '0.04em' }}>
           Book an Appointment
         </h3>
+
+        <StepIndicator selectedSlot={selectedSlot} />
 
         <div className="row g-4">
           <div className="col-md-5">
@@ -220,31 +248,31 @@ function PublicDoctorProfile() {
         <label className="form-label fw-medium">Available Time Slots</label>
 
         {isLoadingSlots ? (
-          <LoadingState message="Loading availability..." />
+          <div className="row row-cols-3 row-cols-sm-4 row-cols-md-5 g-2 mb-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div className="col" key={i}>
+                <div className="dhms-skeleton" style={{ height: 38, borderRadius: 'var(--dhms-radius-sm)' }} />
+              </div>
+            ))}
+          </div>
         ) : slotsError ? (
           <div className="alert alert-danger py-2">{slotsError}</div>
         ) : slots.length === 0 ? (
           <EmptyState icon="bi-calendar-x" title="No slots available" message="This doctor has no availability on the selected date. Try another date." />
         ) : (
-          <div className="row row-cols-3 row-cols-sm-4 row-cols-md-5 g-2 mb-4">
+          <div className="row row-cols-3 row-cols-sm-4 row-cols-md-5 g-2 mb-4 dhms-stagger-in">
             {slots.map((slot) => (
               <div className="col" key={slot.startTime}>
                 <button
                   type="button"
-                  className={`btn w-100 ${
-                    slot.status === 'booked'
-                      ? 'btn-outline-secondary disabled'
-                      : selectedSlot?.startTime === slot.startTime
-                        ? 'btn-primary'
-                        : 'btn-outline-primary'
-                  }`}
+                  className={`dhms-slot-btn ${selectedSlot?.startTime === slot.startTime ? 'selected' : ''}`}
                   disabled={slot.status === 'booked'}
                   aria-pressed={selectedSlot?.startTime === slot.startTime}
                   aria-label={`${formatTimeDisplay(slot.startTime)}, ${slot.status}`}
                   onClick={() => setSelectedSlot(slot)}
                 >
                   {formatTimeDisplay(slot.startTime)}
-                  {slot.status === 'booked' && <div className="small">Booked</div>}
+                  {slot.status === 'booked' && <div className="small" style={{ fontWeight: 400 }}>Booked</div>}
                 </button>
               </div>
             ))}
@@ -272,7 +300,7 @@ function PublicDoctorProfile() {
                 </div>
                 <div className="text-muted small">with Dr. {doctor.name}</div>
               </div>
-              <button className="btn btn-primary" type="button" onClick={() => setShowConfirm(true)}>
+              <button className="btn btn-primary" type="button" disabled={isBooking} onClick={() => setShowConfirm(true)}>
                 <i className="bi bi-check-circle me-2" />
                 Review &amp; Confirm
               </button>

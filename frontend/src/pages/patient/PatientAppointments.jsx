@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 
 import PatientLayout from '../../layouts/PatientLayout.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
 import AppointmentStatusBadge from '../../components/shared/AppointmentStatusBadge.jsx';
 import ConfirmDialog from '../../components/shared/ConfirmDialog.jsx';
+import { SkeletonAppointmentList } from '../../components/shared/Skeletons.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as patientPortalService from '../../api/patientPortalService.js';
 
@@ -87,17 +88,10 @@ function PatientAppointments() {
 
       <div className="dhms-page-transition">
         {isLoading ? (
-          <LoadingState message="Loading appointments..." />
+          <SkeletonAppointmentList count={3} />
         ) : loadError ? (
-          <div className="dhms-card p-4">
-            <div className="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
-              <i className="bi bi-exclamation-triangle-fill mt-1" />
-              <div>{loadError}</div>
-            </div>
-            <button className="btn btn-outline-secondary btn-sm" type="button" onClick={load}>
-              <i className="bi bi-arrow-clockwise me-1" />
-              Retry
-            </button>
+          <div className="dhms-card">
+            <ErrorState message={loadError} onRetry={load} />
           </div>
         ) : appointments.length === 0 ? (
           <div className="dhms-card">
@@ -105,39 +99,51 @@ function PatientAppointments() {
               icon="bi-calendar-x"
               title={`No ${activeTab} appointments`}
               message={activeTab === 'upcoming' ? 'Find a doctor to book your first appointment.' : undefined}
+              actionLabel={activeTab === 'upcoming' ? 'Find a Doctor' : undefined}
+              actionTo={activeTab === 'upcoming' ? '/patient/find-doctor' : undefined}
             />
           </div>
         ) : (
-          <div className="d-flex flex-column gap-3">
+          <div className="d-flex flex-column gap-3 dhms-stagger-in">
             {appointments.map((appt) => (
               <div key={appt.id} className="dhms-card dhms-card--hover p-4">
                 <div className="d-flex flex-wrap align-items-start justify-content-between gap-3">
-                  <div>
-                    <h3 className="h6 fw-semibold mb-1">Dr. {appt.doctorName}</h3>
-                    <p className="text-muted small mb-1">{appt.specialization}</p>
-                    <p className="mb-1">
-                      <i className="bi bi-calendar-event me-2 text-muted" />
-                      {formatDate(appt.appointmentDate)} &middot; {appt.startTime} &ndash; {appt.endTime}
-                    </p>
-                    {appt.reason && (
-                      <p className="text-muted small mb-0">
-                        <i className="bi bi-chat-left-text me-2" />
-                        {appt.reason}
+                  <div className="d-flex gap-3">
+                    <div
+                      className="dhms-stat-icon flex-shrink-0 d-none d-sm-flex"
+                      style={{ width: 44, height: 44, fontSize: '1.1rem', background: 'var(--dhms-primary-light)', color: 'var(--dhms-primary-dark)' }}
+                    >
+                      <i className="bi bi-calendar3" />
+                    </div>
+                    <div>
+                      <h3 className="h6 fw-semibold mb-1">Dr. {appt.doctorName}</h3>
+                      <p className="text-muted small mb-1">{appt.specialization}</p>
+                      <p className="mb-1">
+                        <i className="bi bi-calendar-event me-2 text-muted" />
+                        {formatDate(appt.appointmentDate)} &middot; {appt.startTime} &ndash; {appt.endTime}
                       </p>
-                    )}
+                      {appt.reason && (
+                        <p className="text-muted small mb-0">
+                          <i className="bi bi-chat-left-text me-2" />
+                          {appt.reason}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="text-end d-flex flex-column align-items-end gap-2">
                     <AppointmentStatusBadge status={appt.status} />
-                    <Link to={`/patient/appointments/${appt.id}`} className="btn btn-outline-secondary btn-sm">
-                      <i className="bi bi-eye me-1" />
-                      View Details
-                    </Link>
-                    {(appt.status === 'PENDING' || appt.status === 'CONFIRMED') && activeTab === 'upcoming' && (
-                      <button className="btn btn-outline-danger btn-sm" type="button" onClick={() => setCancelTarget(appt)}>
-                        <i className="bi bi-x-circle me-1" />
-                        Cancel
-                      </button>
-                    )}
+                    <div className="d-flex gap-2">
+                      <Link to={`/patient/appointments/${appt.id}`} className="btn btn-outline-secondary btn-sm">
+                        <i className="bi bi-eye me-1" />
+                        View Details
+                      </Link>
+                      {(appt.status === 'PENDING' || appt.status === 'CONFIRMED') && activeTab === 'upcoming' && (
+                        <button className="btn btn-outline-danger btn-sm" type="button" onClick={() => setCancelTarget(appt)}>
+                          <i className="bi bi-x-circle me-1" />
+                          Cancel
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

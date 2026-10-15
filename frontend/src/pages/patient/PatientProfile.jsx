@@ -2,11 +2,26 @@ import { useEffect, useState } from 'react';
 
 import PatientLayout from '../../layouts/PatientLayout.jsx';
 import Avatar from '../../components/shared/Avatar.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
+import { SkeletonCard } from '../../components/shared/Skeletons.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as patientPortalService from '../../api/patientPortalService.js';
 
 const emptyForm = { name: '', phone: '', email: '', address: '', emergencyName: '', emergencyPhone: '', emergencyRelation: '' };
+
+function InfoRow({ icon, label, value }) {
+  return (
+    <div className="d-flex align-items-start gap-3 py-2 border-bottom">
+      <i className={`bi ${icon} text-muted mt-1 flex-shrink-0`} style={{ width: 18 }} />
+      <div className="flex-grow-1 d-flex justify-content-between gap-2" style={{ minWidth: 0 }}>
+        <span className="text-muted flex-shrink-0">{label}</span>
+        <span className="fw-medium text-end" style={{ overflowWrap: 'anywhere' }}>
+          {value || '—'}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function PatientProfile() {
   const toast = useToast();
@@ -85,23 +100,22 @@ function PatientProfile() {
   return (
     <PatientLayout title="My Profile" subtitle="View and manage your personal information.">
       {isLoading ? (
-        <LoadingState message="Loading your profile..." />
+        <SkeletonCard height={300} />
       ) : loadError ? (
-        <div className="alert alert-danger d-flex align-items-start gap-2" role="alert">
-          <i className="bi bi-exclamation-triangle-fill mt-1" />
-          <div>{loadError}</div>
+        <div className="dhms-card">
+          <ErrorState message={loadError} onRetry={load} />
         </div>
       ) : (
-        <>
+        <div className="dhms-page-transition">
           <div className="dhms-card p-4 mb-4">
-            <div className="d-flex align-items-center gap-3">
+            <div className="d-flex flex-wrap align-items-center gap-3">
               <Avatar name={patient.name} size="lg" />
-              <div>
+              <div className="flex-grow-1">
                 <h2 className="h5 fw-semibold mb-1">{patient.name}</h2>
                 <p className="text-muted mb-0">{patient.phone}</p>
               </div>
               {!isEditing && (
-                <button className="btn btn-outline-primary ms-auto" type="button" onClick={() => setIsEditing(true)}>
+                <button className="btn btn-outline-primary" type="button" onClick={() => setIsEditing(true)}>
                   <i className="bi bi-pencil me-1" />
                   Edit Profile
                 </button>
@@ -110,7 +124,7 @@ function PatientProfile() {
           </div>
 
           {isEditing ? (
-            <form onSubmit={handleSave} className="dhms-card p-4 p-md-5">
+            <form onSubmit={handleSave} className="dhms-card p-4 p-md-5 dhms-stagger-in">
               {apiError && (
                 <div className="alert alert-danger py-2 d-flex align-items-center gap-2" role="alert">
                   <i className="bi bi-exclamation-triangle-fill flex-shrink-0" />
@@ -200,7 +214,14 @@ function PatientProfile() {
 
               <div className="d-flex gap-2">
                 <button type="submit" className="btn btn-primary" disabled={isSaving}>
-                  {isSaving ? 'Saving...' : 'Save Changes'}
+                  {isSaving ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </button>
                 <button type="button" className="btn btn-outline-secondary" disabled={isSaving} onClick={() => setIsEditing(false)}>
                   Cancel
@@ -208,26 +229,25 @@ function PatientProfile() {
               </div>
             </form>
           ) : (
-            <div className="row g-4">
+            <div className="row g-4 dhms-stagger-in">
               <div className="col-md-6">
                 <div className="dhms-card p-4 h-100">
                   <h3 className="h6 fw-semibold text-uppercase text-muted mb-3" style={{ letterSpacing: '0.04em' }}>
                     Contact Information
                   </h3>
-                  <dl className="mb-0">
-                    <div className="d-flex justify-content-between py-2 border-bottom">
-                      <dt className="text-muted fw-normal">Phone</dt>
-                      <dd className="mb-0">{patient.phone}</dd>
+                  <div>
+                    <InfoRow icon="bi-telephone" label="Phone" value={patient.phone} />
+                    <InfoRow icon="bi-envelope" label="Email" value={patient.email} />
+                    <div className="d-flex align-items-start gap-3 py-2">
+                      <i className="bi bi-geo-alt text-muted mt-1 flex-shrink-0" style={{ width: 18 }} />
+                      <div className="flex-grow-1 d-flex justify-content-between gap-2" style={{ minWidth: 0 }}>
+                        <span className="text-muted flex-shrink-0">Address</span>
+                        <span className="fw-medium text-end" style={{ overflowWrap: 'anywhere' }}>
+                          {patient.address || '—'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="d-flex justify-content-between py-2 border-bottom">
-                      <dt className="text-muted fw-normal">Email</dt>
-                      <dd className="mb-0">{patient.email || '—'}</dd>
-                    </div>
-                    <div className="d-flex justify-content-between py-2">
-                      <dt className="text-muted fw-normal">Address</dt>
-                      <dd className="mb-0 text-end">{patient.address || '—'}</dd>
-                    </div>
-                  </dl>
+                  </div>
                 </div>
               </div>
               <div className="col-md-6">
@@ -235,25 +255,24 @@ function PatientProfile() {
                   <h3 className="h6 fw-semibold text-uppercase text-muted mb-3" style={{ letterSpacing: '0.04em' }}>
                     Emergency Contact
                   </h3>
-                  <dl className="mb-0">
-                    <div className="d-flex justify-content-between py-2 border-bottom">
-                      <dt className="text-muted fw-normal">Name</dt>
-                      <dd className="mb-0">{patient.emergencyContact?.name || '—'}</dd>
+                  <div>
+                    <InfoRow icon="bi-person-heart" label="Name" value={patient.emergencyContact?.name} />
+                    <InfoRow icon="bi-telephone" label="Phone" value={patient.emergencyContact?.phone} />
+                    <div className="d-flex align-items-start gap-3 py-2">
+                      <i className="bi bi-people text-muted mt-1 flex-shrink-0" style={{ width: 18 }} />
+                      <div className="flex-grow-1 d-flex justify-content-between gap-2" style={{ minWidth: 0 }}>
+                        <span className="text-muted flex-shrink-0">Relation</span>
+                        <span className="fw-medium text-end" style={{ overflowWrap: 'anywhere' }}>
+                          {patient.emergencyContact?.relation || '—'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="d-flex justify-content-between py-2 border-bottom">
-                      <dt className="text-muted fw-normal">Phone</dt>
-                      <dd className="mb-0">{patient.emergencyContact?.phone || '—'}</dd>
-                    </div>
-                    <div className="d-flex justify-content-between py-2">
-                      <dt className="text-muted fw-normal">Relation</dt>
-                      <dd className="mb-0">{patient.emergencyContact?.relation || '—'}</dd>
-                    </div>
-                  </dl>
+                  </div>
                 </div>
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </PatientLayout>
   );

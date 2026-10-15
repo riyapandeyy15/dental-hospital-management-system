@@ -3,8 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import AdminLayout from '../../layouts/AdminLayout.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
 import SearchBar from '../../components/shared/SearchBar.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import ErrorState from '../../components/shared/ErrorState.jsx';
+import { SkeletonTable } from '../../components/shared/Skeletons.jsx';
 import AppointmentStatusBadge from '../../components/shared/AppointmentStatusBadge.jsx';
 import ConfirmDialog from '../../components/shared/ConfirmDialog.jsx';
 import AdminAppointmentFormModal from './AdminAppointmentFormModal.jsx';
@@ -121,6 +122,7 @@ function AdminAppointments() {
   return (
     <AdminLayout title="Appointment Management" subtitle="View and manage all appointments.">
       <PageHeader
+        eyebrow="Administration"
         title="Appointment Management"
         subtitle={`${pagination.total} appointment${pagination.total === 1 ? '' : 's'}`}
         actions={
@@ -131,15 +133,20 @@ function AdminAppointments() {
         }
       />
 
-      <div className="dhms-card mb-4 p-3 p-md-4">
+      <div className="dhms-toolbar mb-4 p-3 p-md-4 dhms-stagger-in">
         <div className="row g-3 align-items-end">
           <div className="col-12 col-md-6 col-xl-4">
-            <label className="form-label small text-muted mb-1">Search</label>
+            <span className="dhms-toolbar-label">Search</span>
             <SearchBar value={search} onChange={setSearch} placeholder="Search by patient or doctor name" ariaLabel="Search appointments" />
           </div>
           <div className="col-6 col-md-6 col-xl-2">
-            <label className="form-label small text-muted mb-1">Doctor</label>
-            <select className="form-select" value={doctorId} onChange={(e) => setDoctorId(e.target.value)} aria-label="Filter by doctor">
+            <span className="dhms-toolbar-label">Doctor</span>
+            <select
+              className="form-select dhms-toolbar-field"
+              value={doctorId}
+              onChange={(e) => setDoctorId(e.target.value)}
+              aria-label="Filter by doctor"
+            >
               <option value="">All doctors</option>
               {doctors.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -149,8 +156,13 @@ function AdminAppointments() {
             </select>
           </div>
           <div className="col-6 col-md-6 col-xl-2">
-            <label className="form-label small text-muted mb-1">Patient</label>
-            <select className="form-select" value={patientId} onChange={(e) => setPatientId(e.target.value)} aria-label="Filter by patient">
+            <span className="dhms-toolbar-label">Patient</span>
+            <select
+              className="form-select dhms-toolbar-field"
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              aria-label="Filter by patient"
+            >
               <option value="">All patients</option>
               {patients.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -160,12 +172,23 @@ function AdminAppointments() {
             </select>
           </div>
           <div className="col-6 col-md-6 col-xl-2">
-            <label className="form-label small text-muted mb-1">Date</label>
-            <input type="date" className="form-control" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Filter by date" />
+            <span className="dhms-toolbar-label">Date</span>
+            <input
+              type="date"
+              className="form-control dhms-toolbar-field"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              aria-label="Filter by date"
+            />
           </div>
           <div className="col-6 col-md-6 col-xl-2">
-            <label className="form-label small text-muted mb-1">Status</label>
-            <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Filter by status">
+            <span className="dhms-toolbar-label">Status</span>
+            <select
+              className="form-select dhms-toolbar-field"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              aria-label="Filter by status"
+            >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt || 'any'} value={opt}>
                   {opt ? opt.charAt(0) + opt.slice(1).toLowerCase() : 'Any status'}
@@ -176,21 +199,12 @@ function AdminAppointments() {
         </div>
       </div>
 
-      <div className="dhms-card">
+      <div className="dhms-card dhms-stagger-in">
         <div className="p-0">
           {isLoading ? (
-            <LoadingState message="Loading appointments..." />
+            <SkeletonTable rows={6} columns={4} />
           ) : loadError ? (
-            <div className="p-4">
-              <div className="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
-                <i className="bi bi-exclamation-triangle-fill mt-1" />
-                <div>{loadError}</div>
-              </div>
-              <button className="btn btn-outline-secondary btn-sm" type="button" onClick={load}>
-                <i className="bi bi-arrow-clockwise me-1" />
-                Retry
-              </button>
-            </div>
+            <ErrorState message={loadError} onRetry={load} />
           ) : appointments.length === 0 ? (
             <EmptyState icon="bi-calendar-x" title="No appointments found" message="Try adjusting your filters." />
           ) : (
@@ -225,12 +239,12 @@ function AdminAppointments() {
                         <AppointmentStatusBadge status={appt.status} />
                       </td>
                       <td className="text-end">
-                        <div className="btn-group btn-group-sm">
+                        <div className="dhms-icon-btn-group justify-content-end">
                           {(NEXT_STATUS_ACTIONS[appt.status] || []).map((action) => (
                             <button
                               key={action.status}
                               type="button"
-                              className={`btn btn-outline-${action.variant}`}
+                              className={`dhms-icon-btn dhms-icon-btn-${action.variant}`}
                               title={action.label}
                               aria-label={`${action.label} appointment for ${appt.patientName}`}
                               onClick={() => setStatusChange({ appointment: appt, action })}

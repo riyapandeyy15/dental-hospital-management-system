@@ -5,8 +5,8 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import AdminLayout from '../../layouts/AdminLayout.jsx';
 import StatCard from '../../components/shared/StatCard.jsx';
 import SectionCard from '../../components/shared/SectionCard.jsx';
-import LoadingState from '../../components/shared/LoadingState.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
+import { SkeletonCard } from '../../components/shared/Skeletons.jsx';
 import * as adminReportsService from '../../api/adminReportsService.js';
 
 const STATUS_META = {
@@ -62,7 +62,8 @@ function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="mb-4">
+      <div className="mb-4 dhms-stagger-in">
+        <div className="dhms-page-eyebrow">Administration</div>
         <h2 className="h4 fw-semibold mb-1">
           {greeting()}, {user?.name}
         </h2>
@@ -75,7 +76,7 @@ function AdminDashboard() {
         </div>
       )}
 
-      <div className="row g-3 mb-3">
+      <div className="row g-3 mb-3 dhms-stagger-in">
         <StatCard label="Total Patients" value={stats ? stats.totalPatients : '--'} icon="bi-people" isPlaceholder={!stats} />
         <StatCard
           label="Total Doctors"
@@ -135,12 +136,17 @@ function AdminDashboard() {
       </div>
 
       {isLoading ? (
-        <SectionCard className="mb-4">
-          <LoadingState message="Loading dashboard statistics..." />
-        </SectionCard>
+        <div className="row g-3 mb-4">
+          <div className="col-12 col-xl-7">
+            <SkeletonCard height={220} />
+          </div>
+          <div className="col-12 col-xl-5">
+            <SkeletonCard height={220} />
+          </div>
+        </div>
       ) : dashboard ? (
         <>
-          <div className="row g-3 mb-4">
+          <div className="row g-3 mb-4 dhms-stagger-in">
             <div className="col-12 col-xl-7">
               <SectionCard title="Appointments (last 14 days)" className="h-100">
                 {dashboard.appointmentsTrend.every((d) => d.count === 0) ? (
@@ -219,21 +225,21 @@ function AdminDashboard() {
         </>
       ) : null}
 
-      <SectionCard title="Quick Actions" className="mb-4">
+      <SectionCard title="Quick Actions" className="mb-4 dhms-stagger-in">
         <div className="d-flex flex-wrap gap-2">
-          <Link to="/admin/doctors?new=1" className="btn btn-primary d-inline-flex align-items-center gap-2">
+          <Link to="/admin/doctors?new=1" className="dhms-quick-action primary d-inline-flex align-items-center gap-2 text-decoration-none">
             <i className="bi bi-plus-lg" />
             Add Doctor
           </Link>
-          <Link to="/admin/doctors" className="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+          <Link to="/admin/doctors" className="dhms-quick-action d-inline-flex align-items-center gap-2 text-decoration-none">
             <i className="bi bi-person-badge" />
             Manage Doctors
           </Link>
-          <Link to="/admin/patients" className="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+          <Link to="/admin/patients" className="dhms-quick-action d-inline-flex align-items-center gap-2 text-decoration-none">
             <i className="bi bi-people" />
             Manage Patients
           </Link>
-          <Link to="/admin/appointments" className="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+          <Link to="/admin/appointments" className="dhms-quick-action d-inline-flex align-items-center gap-2 text-decoration-none">
             <i className="bi bi-calendar3" />
             Manage Appointments
           </Link>
